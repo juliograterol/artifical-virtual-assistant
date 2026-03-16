@@ -1,41 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import ActionButtons from "./action-buttons";
+import { useEffect, useState } from "react";
+import ActionButtons from "../action-buttons";
 
 const ChatInput = ({
   placeholder = "Reply to AVA...",
+  onSend,
 }: {
   placeholder?: string;
+  onSend: (message: string, chatId: string) => Promise<void> | void;
 }) => {
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState("");
+  const [chatId, setChatId] = useState<string>("");
+
+  // create or load chat session
+  useEffect(() => {
+    let id = localStorage.getItem("ava_chat_id");
+
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("ava_chat_id", id);
+    }
+
+    setChatId(id);
+  }, []);
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    const payload = {
-      message,
-      timestamp: Date.now(),
-    };
-
-    console.log("Sending:", payload);
-
-    const res = await fetch(
-      "https://n8n.interactiveworkers.com/webhook-test/AVA",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message,
-        }),
-      },
-    );
-
-    const data = await res.json();
-
-    console.log("AVA:", data.reply);
+    await onSend(message, chatId);
 
     setMessage("");
   };
@@ -48,7 +41,7 @@ const ChatInput = ({
   };
 
   return (
-    <div className="text-white w-full flex flex-col text-center gap-5">
+    <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl">
       <div className="bg-[#282828] rounded-[25px] p-6 w-full">
         <textarea
           className="outline-0 w-full resize-none"

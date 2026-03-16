@@ -39,3 +39,35 @@ body {
     background-position: 0% -500%;
   }
 }
+
+/* 1. The width of the entire scrollbar */
+.chat-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* 2. The background of the scrollbar area */
+.chat-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 3. The draggable handle */
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0; /* Subtle grey */
+  border-radius: 10px; /* Round edges */
+  border: 1px solid transparent; /* Padding effect */
+}
+
+/* 4. Handle on hover */
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0;
+}
+
+/* Firefox Support */
+.chat-container {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+
+h1 {
+  font-size: larger;
+}

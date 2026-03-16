@@ -1,4 +1,4 @@
-import ChatInput from "@/component/chat-input";
+import ChatInput from "@/component/chat/chat-input";
 import GlassElement from "@/component/glass-elemet/glass-element";
 import Hello from "@/component/hello";
 import Image from "next/image";
@@ -11,7 +11,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center gap-6 py-6 text-center sm:items-start sm:text-left">
             <Hello />
           </div>
-          <ChatInput />
+          {/* <ChatInput /> */}
         </section>
       </main>
     </div>
