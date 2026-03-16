@@ -1,0 +1,54 @@
+.ava-logo {
+  transform-style: preserve-3d;
+}
+
+.ava-logo .draw-once {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: draw-ava 2.2s ease-out forwards;
+}
+
+.ava-logo .delay {
+  animation-delay: 0.6s;
+}
+
+@keyframes draw-ava {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ava-logo .ava-bg {
+  animation-delay: 5s;
+  animation: chromed 2.2s ease-out forwards;
+  filter: drop-shadow(0px 0px 0px white);
+}
+
+@keyframes chromed {
+  75% {
+    fill: transparent;
+  }
+  85%,
+  95% {
+    filter: drop-shadow(0px 0px 6px white);
+  }
+  to {
+    fill: #fff;
+  }
+}
+
+/* .ava-logo {
+  animation: flip 1.5s linear forwards;
+  animation-delay: 3s;
+}
+.ava-logo {
+  will-change: transform;
+}
+@keyframes flip {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+} */
