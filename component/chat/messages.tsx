@@ -29,10 +29,9 @@ const AgentMessage = ({ message = "" }: MessageProps) => {
   return <Bubble message={message} />;
 };
 
-type Chat = {
-  // Modal: typeof Modal;
+type C = {
   UserMessage: typeof UserMessage;
   AgentMessage: typeof AgentMessage;
 };
 
-export default { UserMessage, AgentMessage } as Chat;
+export default { UserMessage, AgentMessage } as C;

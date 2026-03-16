@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ActionButtons from "../action-buttons";
 
 const ChatInput = ({
@@ -8,27 +8,14 @@ const ChatInput = ({
   onSend,
 }: {
   placeholder?: string;
-  onSend: (message: string, chatId: string) => Promise<void> | void;
+  onSend: (message: string) => Promise<void> | void;
 }) => {
   const [message, setMessage] = useState("");
-  const [chatId, setChatId] = useState<string>("");
-
-  // create or load chat session
-  useEffect(() => {
-    let id = localStorage.getItem("ava_chat_id");
-
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("ava_chat_id", id);
-    }
-
-    setChatId(id);
-  }, []);
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    await onSend(message, chatId);
+    await onSend(message);
 
     setMessage("");
   };
