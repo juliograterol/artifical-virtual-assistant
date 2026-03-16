@@ -52,3 +52,30 @@
     transform: rotateY(360deg);
   }
 } */
+
+.mic-rect {
+  transform-origin: bottom;
+  transform: scaleY(0);
+}
+
+.mic-rect.active {
+  animation: micFill 1.2s ease-in-out infinite;
+}
+
+@keyframes micFill {
+  0% {
+    transform: scaleY(0.2);
+  }
+  25% {
+    transform: scaleY(0.9);
+  }
+  50% {
+    transform: scaleY(0.4);
+  }
+  75% {
+    transform: scaleY(0.8);
+  }
+  100% {
+    transform: scaleY(0.3);
+  }
+}
