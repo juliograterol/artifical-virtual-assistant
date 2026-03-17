@@ -1,124 +1,81 @@
-/* LIQUID GLASS STYLES */
-
-.liquidGlass-wrapper {
+.glass {
   position: relative;
-  display: flex;
-  font-weight: 600;
   overflow: hidden;
 
-  color: black;
-  cursor: pointer;
+  background: linear-gradient(
+    135deg,
+    rgba(49, 49, 49, 0.15),
+    rgba(50, 50, 50, 0.05)
+  );
+
+  border-radius: 25px;
+  padding: 25px;
+  backdrop-filter: blur(10px);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 
   box-shadow:
-    0 6px 6px rgba(0, 0, 0, 0.2),
-    0 0 20px rgba(0, 0, 0, 0.1);
-
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(50, 50, 50, 0.2);
 }
 
-.liquidGlass-effect {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-
-  backdrop-filter: blur(3px);
-  filter: url(#glass-distortion);
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.liquidGlass-tint {
-  z-index: 1;
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.liquidGlass-shine {
-  position: absolute;
-  inset: 0;
+/* content stays above effects */
+.glass > * {
+  position: relative;
   z-index: 2;
-
-  overflow: hidden;
-
-  box-shadow:
-    inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
-    inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
 }
 
-.liquidGlass-text {
-  z-index: 3;
-  padding: 10px;
-  color: black;
+/* 🔥 rotating soft glow */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(50, 50, 50, 0.25),
+    transparent 30%
+  );
+
+  filter: blur(20px);
+  opacity: 0.5;
+
+  animation: rotateGlass 8s linear infinite;
 }
 
-a {
-  text-decoration: none;
+/* ✨ shimmer sweep */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(50, 50, 50, 0.1),
+    transparent 70%
+  );
+
+  background-size: 200% 100%;
+  animation: shineEffect 10s ease-in-out infinite;
 }
 
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
+@keyframes rotateGlass {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.dock {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 2rem;
-  padding: 0.6rem;
-}
-
-.dock,
-.dock > div {
-  border-radius: 2rem;
-}
-
-.dock:hover {
-  padding: 0.8rem;
-  border-radius: 2.5rem;
-}
-
-.dock:hover > div {
-  border-radius: 2.5rem;
-}
-
-.dock img {
-  width: 75px;
-  padding: 0;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
-}
-
-.dock img:hover {
-  transform: scale(0.95);
-  transform-origin: center center;
-}
-
-.button {
-  padding: 1.5rem 2.5rem;
-  border-radius: 3rem;
-}
-
-.button,
-.button > div {
-  border-radius: 3rem;
-}
-
-.button:hover {
-  padding: 1.8rem 2.8rem;
-}
-
-.button:hover > div {
-  border-radius: 4rem;
-}
-
-.button svg {
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
-}
-
-.button:hover svg {
-  transform: scale(0.95);
+@keyframes shineEffect {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

@@ -30,7 +30,8 @@ const ChatInput = ({
 
   return (
     <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl">
-      <div className="bg-[#282828] rounded-[25px] p-6 w-full">
+      <GlassElement>
+        {/* <div className="bg-[#282828] rounded-[25px] p-6 w-full"> */}
         <textarea
           className="outline-0 w-full resize-none"
           placeholder={placeholder}
@@ -48,7 +49,8 @@ const ChatInput = ({
             disabled={!message.trim()}
           />
         </div>
-      </div>
+        {/* </div> */}
+      </GlassElement>
 
       <p className="text-sm">AVA can make mistakes. Check important info.</p>
     </div>
