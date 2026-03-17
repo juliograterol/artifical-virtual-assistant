@@ -5,6 +5,7 @@ import ChatInput from "@/component/chat/chat-input";
 import Hello from "@/component/hello";
 import { startNewChat } from "@/lib/chat-actions";
 import { getChats, saveChats } from "@/lib/chat-storage";
+import Discover from "@/component/discovery/discover-section";
 
 export default function Home() {
   const router = useRouter();
@@ -18,16 +19,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex max-h-screen w-full items-center justify-center font-sans">
-      <main className="h-full w-full max-w-3xl flex-col items-center justify-between py-32 px-16">
-        <section className="h-full w-full flex flex-col justify-center items-center">
-          <div className="flex flex-col items-center justify-center gap-6 py-6 text-center">
-            <Hello />
-          </div>
-
-          <ChatInput onSend={startChat} />
-        </section>
+    <>
+      <main className="h-screen flex flex-col justify-center items-center w-full gap-4">
+        <Hello />
+        <ChatInput onSend={() => {}} />
       </main>
-    </div>
+      <div className="w-full absolute top-9/12">
+        <Discover />
+      </div>
+    </>
   );
 }

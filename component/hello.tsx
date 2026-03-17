@@ -23,9 +23,9 @@ export default function Hello({ name = "User" }: { name?: string }) {
   return (
     <div className="flex flex-col items-center gap-2">
       <AVA />
-      <h2 className="text-4xl text-white text-center font-medium">
+      <h1 className="text-4xl text-white text-center font-medium">
         {randomGreeting}, {name}
-      </h2>
+      </h1>
 
       <p className="text-lg text-zinc-400 text-center">{randomMessage}</p>
     </div>
