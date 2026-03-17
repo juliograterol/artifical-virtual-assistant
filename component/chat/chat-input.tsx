@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ActionButtons from "../action-buttons";
+import GlassElement from "../glass-elemet/glass-element";
 
 const ChatInput = ({
   placeholder = "Reply to AVA...",

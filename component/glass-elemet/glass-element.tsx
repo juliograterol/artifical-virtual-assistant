@@ -3,17 +3,31 @@ import "./glass.css";
 export default function GlassElement({
   children,
   className,
+  borderRadius = "full",
 }: {
   children?: React.ReactNode;
   className?: string;
+  borderRadius?: number | "full";
 }) {
   return (
     <div className="wrapper transition-all flex justify-center items-center">
-      <div className={`liquidGlass-wrapper rounded-full ${className}`}>
-        <div className="liquidGlass-effect rounded-full"></div>
-        <div className="liquidGlass-tint rounded-full"></div>
-        <div className="liquidGlass-shine rounded-full"></div>
-        <div className="liquidGlass-text rounded-full">{children}</div>
+      <div
+        className={`liquidGlass-wrapper ${borderRadius === "full" ? "rounded-full" : `rounded-[${borderRadius}px]`} ${className}`}
+      >
+        <div
+          className={`liquidGlass-effect w-full ${borderRadius === "full" ? "rounded-full" : `rounded-[${borderRadius}px]`}`}
+        ></div>
+        <div
+          className={`liquidGlass-tint w-full ${borderRadius === "full" ? "rounded-full" : `rounded-[${borderRadius}px]`}`}
+        ></div>
+        <div
+          className={`liquidGlass-shine w-full ${borderRadius === "full" ? "rounded-full" : `rounded-[${borderRadius}px]`}`}
+        ></div>
+        <div
+          className={`liquidGlass-text w-full ${borderRadius === "full" ? "rounded-full" : `rounded-[${borderRadius}px]`}`}
+        >
+          {children}
+        </div>
       </div>
       <svg>
         <filter
