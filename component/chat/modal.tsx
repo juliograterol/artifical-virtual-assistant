@@ -27,4 +27,4 @@ type Chat = {
   Modal: typeof Modal;
 };
 
-export default { Modal };
+export default { Modal } as Chat;

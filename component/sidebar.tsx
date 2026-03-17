@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getChats } from "@/lib/chat-storage";
 import AVA from "./AVA";
+import Options from "./options";
 
 type Chat = {
   id: string;
@@ -54,13 +55,11 @@ function History() {
   return (
     <ul className="flex flex-col">
       {chats.map((chat) => (
-        <li key={chat.id} className="relative">
-          <Link
-            className="block w-full px-4 py-2 hover:bg-[#404040] rounded"
-            href={`/c/${chat.id}`}
-          >
+        <li key={chat.id} className="relative hover:bg-[#404040] rounded group">
+          <Link className="block w-full px-4 py-2" href={`/c/${chat.id}`}>
             {chat.name || "New Chat"}
           </Link>
+          <Options id={chat.id} />
         </li>
       ))}
     </ul>
