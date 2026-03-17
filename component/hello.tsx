@@ -1,28 +1,33 @@
-import Image from "next/image";
-import GlassElement from "./glass-elemet/glass-element";
+"use client";
+
+import { useEffect, useState } from "react";
 import AVA from "./AVA";
 
-const greeting: string[] = ["Good morning", "Good afternoon"];
-const message: string[] = [
-  "How can I help you?",
-  "What can I do for you today?",
-  "Tell me what's on your mind?",
-  "Ready to reach out?",
-];
-
 export default function Hello({ name = "User" }: { name?: string }) {
+  const greeting: string[] = ["Good morning", "Good afternoon"];
+  const message: string[] = [
+    "How can I help you?",
+    "What can I do for you today?",
+    "Tell me what's on your mind?",
+    "Let's build something great.",
+  ];
+
+  const [randomMessage, setRandomMessage] = useState("");
+  const [randomGreeting, setRandomGreeting] = useState("");
+
+  useEffect(() => {
+    setRandomMessage(message[Math.floor(Math.random() * message.length)]);
+    setRandomGreeting(greeting[Math.floor(Math.random() * greeting.length)]);
+  }, []);
+
   return (
-    <div className="flex flex-col w-full">
-      {/* <GlassElement className="w-80 h-80 flex justify-center items-center hover:scale-[1.01] p-10"> */}
-      {/* <h1 className="text-white text-8xl text-center font-semibold">AVA</h1> */}
+    <div className="flex flex-col items-center gap-2">
       <AVA />
-      {/* </GlassElement> */}
       <h2 className="text-4xl text-white text-center font-medium">
-        {greeting[0]}, {name}
+        {randomGreeting}, {name}
       </h2>
-      <p className="text-lg text-zinc-400 text-center">
-        {message[Math.floor(Math.random() * message.length)]}
-      </p>
+
+      <p className="text-lg text-zinc-400 text-center">{randomMessage}</p>
     </div>
   );
 }

@@ -53,10 +53,12 @@ export default function ChatPage() {
 
       const data = await res.json();
 
+      const payload = Array.isArray(data) ? data[0] : data;
+
       const reply =
-        typeof data === "string"
-          ? data
-          : data.reply || data.message || "No response received.";
+        payload?.reply ||
+        payload?.message ||
+        (typeof payload === "string" ? payload : "No response received.");
 
       const agentMessage: Message = {
         role: "agent",

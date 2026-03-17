@@ -15,6 +15,8 @@ export type ChatSession = {
 const STORAGE_KEY = "ava_chats";
 
 export function getChats(): Record<string, ChatSession> {
+  if (typeof window === "undefined") return {};
+
   const data = localStorage.getItem(STORAGE_KEY);
   return data ? JSON.parse(data) : {};
 }
