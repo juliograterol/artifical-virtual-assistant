@@ -3,64 +3,18 @@
 import { useRouter } from "next/navigation";
 import ChatInput from "@/component/chat/chat-input";
 import Hello from "@/component/hello";
+import { startNewChat } from "@/lib/chat-actions";
 import { getChats, saveChats } from "@/lib/chat-storage";
 
 export default function Home() {
   const router = useRouter();
 
   const startChat = async (message: string) => {
-    if (!message.trim()) return;
+    const id = await startNewChat(message);
 
-    const chats = getChats();
-    const id = crypto.randomUUID();
-
-    // 1. Create chat with user message
-    const newChat = {
-      id,
-      name: message.slice(0, 40) || "New Chat",
-      createdAt: Date.now(),
-      messages: [
-        {
-          role: "user" as const,
-          content: message,
-        },
-      ],
-    };
-
-    chats[id] = newChat;
-    saveChats(chats);
-
-    try {
-      // 2. Send to n8n
-      const res = await fetch(
-        "https://n8n.interactiveworkers.com/webhook/AVA",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message,
-            chatId: id,
-          }),
-        },
-      );
-
-      const data = await res.json();
-
-      // 3. Save AVA response
-      chats[id].messages.push({
-        role: "agent",
-        content: data.reply,
-      });
-
-      saveChats(chats);
-    } catch (err) {
-      console.error("Error sending to AVA:", err);
+    if (id) {
+      router.push(`/c/${id}`);
     }
-
-    // 4. Redirect AFTER everything is saved
-    router.push(`/c/${id}`);
   };
 
   return (
