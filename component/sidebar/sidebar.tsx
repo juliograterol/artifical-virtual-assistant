@@ -14,7 +14,7 @@ export default function Sidebar() {
   return (
     <aside
       className={`
-        fixed left-0 top-0 h-full w-full group
+        fixed left-0 top-0 h-full w-full
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
         ${isOpen ? "max-w-xs" : "max-w-20"}
       `}
