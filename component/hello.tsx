@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AVA from "./AVA";
 
 export default function Hello({ name = "User" }: { name?: string }) {
   const greeting: string[] = ["Good morning", "Good afternoon"];
@@ -22,8 +21,7 @@ export default function Hello({ name = "User" }: { name?: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <AVA />
-      <h1 className="text-4xl text-white text-center font-medium">
+      <h1 className="text-4xl text-white text-center font-medium tracking-[-7.5%]">
         {randomGreeting}, {name}
       </h1>
 

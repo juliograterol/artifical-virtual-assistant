@@ -53,6 +53,58 @@
   }
 } */
 
+.ava-logo.loop {
+  transform-style: preserve-3d;
+}
+
+/* ✏️ stroke drawing */
+.ava-logo.loop .draw-once {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+
+  animation: draw-ava 2.2s ease-in-out infinite alternate;
+}
+
+.ava-logo.loop .delay {
+  animation-delay: 0.6s;
+}
+
+/* draw forward, then reverse automatically */
+@keyframes draw-ava {
+  from {
+    stroke-dashoffset: 900;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ✨ fill + glow loop */
+.ava-logo.loop .ava-bg {
+  animation: chromed 2.2s ease-in-out infinite alternate;
+}
+
+/* IMPORTANT: make this reversible-friendly */
+@keyframes chromed {
+  0% {
+    fill: transparent;
+    filter: drop-shadow(0px 0px 0px white);
+  }
+
+  70% {
+    fill: transparent;
+  }
+
+  85% {
+    filter: drop-shadow(0px 0px 6px white);
+  }
+
+  100% {
+    fill: #fff;
+    filter: drop-shadow(0px 0px 2px white);
+  }
+}
+
 .mic-rect {
   transform-origin: bottom;
   transform: scaleY(0);

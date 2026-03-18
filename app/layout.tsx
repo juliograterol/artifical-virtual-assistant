@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Background from "@/component/bg";
 import { Montserrat } from "next/font/google";
 import Sidebar from "@/component/sidebar";
+import AppLoader from "@/component/app-loader";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -19,10 +20,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.className} antialiased`}>
-        <Background />
-        <Sidebar />
-        {children}
+      <body className={`${montserrat.className} antialiased bg-[#1B1B1B]`}>
+        <AppLoader>
+          <Background />
+          <Sidebar />
+          {children}
+        </AppLoader>
       </body>
     </html>
   );

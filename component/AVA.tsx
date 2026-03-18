@@ -1,18 +1,32 @@
 "use client";
+import { useEffect } from "react";
 import "./animation.css";
 import Object3D from "./object-3d";
 
-export default function AVA() {
+export default function AVA({
+  loop,
+  onComplete,
+}: {
+  loop?: boolean;
+  onComplete?: () => void;
+}) {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onComplete?.();
+    }, 2600);
+    return () => clearTimeout(timeout);
+  }, [onComplete]);
+
   return (
     <div className="w-full relative flex justify-center items-center">
       {/* <Object3D src="/AVA.glb" scale={7} /> */}
       <svg
-        width="316"
+        width="360"
         height="140"
         viewBox="0 -12 316 140"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="ava-logo"
+        className={`ava-logo ${loop && "loop"}`}
       >
         <path
           d="M87.8583 22.4753L78.4737 3.11199L76.9731 0V22.4679H59.503C38.9644 22.4679 22.3155 39.2455 22.3155 59.9243V71.0342H111.383L87.8583 22.4679V22.4753ZM75.9353 93.5171H22.3155V116H0V59.9318C0 45.7626 4.88267 32.7358 13.0578 22.4753C15.7978 19.0401 18.9036 15.9132 22.3229 13.147C32.5138 4.91601 45.4522 0 59.5104 0H101.797L112.697 22.4679L136.222 71.0342L147.107 93.5021L158 115.985H133.161L122.268 93.5021H75.9428L75.9353 93.5171Z"
