@@ -32,7 +32,7 @@ body {
 }
 
 .bg-loop {
-  filter: brightness(0.3);
+  /* filter: brightness(0.3); */
 }
 
 @keyframes moveBackground {

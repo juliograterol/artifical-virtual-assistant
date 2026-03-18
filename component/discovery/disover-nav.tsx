@@ -34,14 +34,14 @@ export default function DiscoverNav() {
     <nav className="rounded-full bg-[#282828] px-2 py-3 w-full relative flex justify-center items-center">
       <GlassElement
         className="absolute transition-all duration-300 mx-2 z-10"
+        theme="medium"
+        rounded
         style={{
           left: style.left,
           width: style.width,
           height: "80%",
         }}
-      >
-        <div className="bg-whit"></div>
-      </GlassElement>
+      />
 
       <ul
         ref={containerRef}

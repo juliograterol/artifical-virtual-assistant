@@ -8,7 +8,7 @@ const Options = ({ id }: { id: string }) => {
 
   return (
     <div
-      className={`rounded-xl absolute top-0 right-0 bg-[#404040] h-full flex items-center px-2 cursor-pointer opacity-0 group-hover:opacity-100`}
+      className={`rounded-xl absolute top-0 right-0 bg-[#404040] h-full flex items-center px-2 cursor-pointer opacity-0 group-hover/item:opacity-100 transition-opacity`}
     >
       <svg
         onClick={() => setIsOpen(!isOpen)}

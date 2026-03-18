@@ -1,31 +1,45 @@
-.glass {
+.glass:not(.no-glass) {
+  /* 🎛️ GLASS VARIABLES */
+  --glass-bg-1: rgba(49, 49, 49, 0.15);
+  --glass-bg-2: rgba(50, 50, 50, 0.05);
+
+  --glass-border: rgba(255, 255, 255, 0.18);
+
+  --glass-shadow: rgba(0, 0, 0, 0.25);
+
+  --glass-highlight-dark: rgba(50, 50, 50, 0.2);
+  --glass-highlight-light: rgba(255, 255, 255, 0.2);
+
+  --glass-shine: rgba(50, 50, 50, 0.25);
+  --glass-shimmer: rgba(50, 50, 50, 0.1);
+
+  --glass-blur: 5px;
+
   overflow: hidden;
 
-  background: linear-gradient(
-    135deg,
-    rgba(49, 49, 49, 0.15),
-    rgba(50, 50, 50, 0.05)
-  );
-
+  background: linear-gradient(135deg, var(--glass-bg-1), var(--glass-bg-2));
   padding: 10px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--glass-blur));
 
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
 
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(50, 50, 50, 0.2);
+    0 8px 32px var(--glass-shadow),
+    inset 3px 1px 5px var(--glass-highlight-dark),
+    inset -3px 1px 5px var(--glass-highlight-dark),
+    inset 0 5px 10px rgba(0, 0, 0, 0.2),
+    inset 0 -5px 10px var(--glass-highlight-light);
 }
 
 /* content stays above effects */
-.glass > * {
+.glass:not(.no-glass) > * {
   position: relative;
   z-index: 2;
 }
 
 /* 🔥 rotating soft glow */
-.glass::before {
+.glass:not(.no-glass)::before {
   content: "";
   position: absolute;
   inset: -50%;
@@ -33,7 +47,7 @@
   background: conic-gradient(
     from 0deg,
     transparent,
-    rgba(50, 50, 50, 0.25),
+    var(--glass-shine),
     transparent 30%
   );
 
@@ -44,7 +58,7 @@
 }
 
 /* ✨ shimmer sweep */
-.glass::after {
+.glass:not(.no-glass)::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -52,12 +66,46 @@
   background: linear-gradient(
     120deg,
     transparent 30%,
-    rgba(50, 50, 50, 0.1),
+    var(--glass-shimmer),
     transparent 70%
   );
 
   background-size: 200% 100%;
   animation: shineEffect 10s ease-in-out infinite;
+}
+
+.glass.dark {
+  --glass-bg-1: rgba(20, 20, 20, 0.4);
+  --glass-bg-2: rgba(20, 20, 20, 0.2);
+
+  --glass-shine: rgba(255, 255, 255, 0.08);
+  --glass-shimmer: rgba(255, 255, 255, 0.05);
+
+  --glass-highlight-light: rgba(255, 255, 255, 0);
+}
+
+.glass.medium {
+  --glass-bg-1: rgba(50, 50, 50, 0.4);
+  --glass-bg-2: rgba(20, 20, 20, 0.2);
+
+  --glass-shine: rgba(100, 100, 100, 0.4);
+  --glass-shimmer: rgba(100, 100, 100, 0.4);
+
+  --glass-highlight-light: rgba(100, 100, 100, 0.4);
+}
+
+.glass.light {
+  --glass-shine: rgba(255, 255, 255, 0.5);
+  --glass-shimmer: rgba(255, 255, 255, 0.35);
+}
+.glass.shiny {
+  --glass-bg-1: rgba(255, 255, 255, 0.4);
+  --glass-bg-2: rgba(255, 255, 255, 0.15);
+
+  --glass-shine: rgba(255, 255, 255, 0.6);
+  --glass-shimmer: rgba(255, 255, 255, 0.3);
+
+  --glass-highlight-light: rgba(255, 255, 255, 0.6);
 }
 
 @keyframes rotateGlass {

@@ -3,17 +3,19 @@ import "./glass.css";
 export default function GlassElement({
   children,
   className,
-  rounded = 25,
-  style = {},
+  rounded = 10,
+  style = { borderRadius: 10 },
+  theme = "dark",
 }: {
   children?: React.ReactNode;
   className?: string;
-  rounded?: number | "full";
+  rounded?: number | true;
+  theme?: "dark" | "light" | "shiny" | "medium" | "";
   style?: React.CSSProperties;
 }) {
   return (
     <div
-      className={`glass ${className} ${rounded === "full" ? "rounded-full" : `rounded-[${rounded}px]`}`}
+      className={`glass ${theme} ${className} ${rounded ? "rounded-full" : ``}`}
       style={style}
     >
       {children}

@@ -14,7 +14,7 @@ export default function DiscoverItem({
   const router = useRouter();
 
   return (
-    <GlassElement className="w-full max-w-md group">
+    <GlassElement className="w-full max-w-md group transition-all duration-150 hover:scale-105 select-none">
       <div className="p-2 relative">
         <span className="font-semibold text-2xl">{title}</span>
         <p>{prompt}</p>
@@ -26,7 +26,7 @@ export default function DiscoverItem({
               router.push(`/c/${id}`);
             }
           }}
-          className="bg-[#505050] hover:bg-[#606060] active:bg-[#404040] cursor-pointer font-semibold px-6 py-2 rounded-full absolute opacity-0 group-hover:opacity-100 transition-all duration-150 bottom-0 right-0"
+          className="bg-[#505050] hover:bg-[#606060] active:bg-[#404040] cursor-pointer font-semibold px-6 py-2 rounded-full absolute opacity-0 group-hover:opacity-100 transition-all duration-150 delay-1000 bottom-0 right-0"
         >
           Use
         </button>
