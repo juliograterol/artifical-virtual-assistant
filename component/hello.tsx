@@ -21,7 +21,7 @@ export default function Hello({ name = "User" }: { name?: string }) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <h1 className="text-4xl text-white text-center font-medium tracking-[-7.5%]">
+      <h1 className="md:text-5xl text-4xl text-white text-center font-medium tracking-[-7.5%]">
         {randomGreeting}, {name}
       </h1>
 

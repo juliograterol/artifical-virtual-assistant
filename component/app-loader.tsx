@@ -27,7 +27,7 @@ export default function AppLoader({ children }: { children: React.ReactNode }) {
       )}
 
       <div
-        className={`overflow-hidden w-full
+        className={`overflow-x-hidden w-full
           transition-opacity duration-700
           ${loading ? "opacity-0" : "opacity-100"}
         `}

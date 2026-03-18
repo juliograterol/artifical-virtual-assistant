@@ -30,14 +30,14 @@ export default function Home() {
 
   return (
     <>
-      <main className="h-screen flex flex-col justify-center items-center w-full gap-4">
+      <main className="h-full max-h-10/12 flex flex-col justify-center items-center w-full gap-4">
         <Hello />
         <ChatInput onSend={startChat} />
       </main>
       <div
-        className="w-full absolute flex justify-center items-center"
+        className="w-full flex justify-center items-center"
         style={{
-          top: `calc(100% - ${headerHeight * 1.5}px)`,
+          marginTop: `-${headerHeight}px`,
         }}
       >
         <Discover headerRef={headerRef} />
