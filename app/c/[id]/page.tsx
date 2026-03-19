@@ -34,10 +34,10 @@ export default function ChatPage() {
   }, [chatId]);
 
   const sendMessage = async (message: string) => {
-    const agentMessage = await sendMessageToChat(chatId, message, messages);
+    const agentMessage = await sendMessageToChat(chatId, message);
 
     if (agentMessage) {
-      setMessages((prev) => [...prev, agentMessage]);
+      setMessages(getChat(chatId)?.messages || []);
     }
   };
 

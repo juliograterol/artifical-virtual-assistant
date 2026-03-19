@@ -54,8 +54,22 @@ export async function startNewChat(message: string) {
     const payload = Array.isArray(data) ? data[0] : data;
 
     // ✅ Update name if AVA provides one
-    if (payload?.name) {
-      chats[id].name = payload.name;
+    const updatedChats = getChats();
+
+    if (updatedChats[id]) {
+      if (payload?.name) {
+        updatedChats[id].name = payload.name;
+      }
+
+      updatedChats[id].messages = [
+        ...(updatedChats[id].messages || []),
+        {
+          role: "agent",
+          content: payload?.reply || "No response received.",
+        },
+      ];
+
+      saveChats(updatedChats);
     }
 
     // ✅ Save agent response
@@ -75,21 +89,15 @@ export async function startNewChat(message: string) {
 /**
  * Send message in existing chat
  */
-export async function sendMessageToChat(
-  chatId: string,
-  message: string,
-  messages: Message[],
-) {
+export async function sendMessageToChat(chatId: string, message: string) {
   if (!message.trim()) return null;
-
-  const chats = getChats();
 
   const userMessage: Message = {
     role: "user",
     content: message,
   };
 
-  // ✅ Save user message
+  // ✅ always write immediately
   addMessage(chatId, userMessage);
 
   try {
@@ -98,20 +106,15 @@ export async function sendMessageToChat(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        message,
-        chatId,
-        messages,
-      }),
+      body: JSON.stringify({ message, chatId }),
     });
 
     const text = await res.text();
 
     let data = null;
-
     try {
       data = text ? JSON.parse(text) : null;
-    } catch (e) {
+    } catch {
       console.error("Invalid JSON:", text);
     }
 
@@ -127,11 +130,20 @@ export async function sendMessageToChat(
       content: reply,
     };
 
-    addMessage(chatId, agentMessage);
+    // ✅ ALWAYS re-fetch before modifying
+    const chats = getChats();
 
-    // ✅ Optional: rename again if AVA sends better name
-    if (payload?.name && chats[chatId]) {
-      chats[chatId].name = payload.name;
+    if (chats[chatId]) {
+      chats[chatId].messages = [
+        ...(chats[chatId].messages || []),
+        agentMessage,
+      ];
+
+      // ✅ update name HERE too
+      if (payload?.name) {
+        chats[chatId].name = payload.name;
+      }
+
       saveChats(chats);
     }
 
@@ -149,7 +161,6 @@ export async function sendMessageToChat(
     return errorMessage;
   }
 }
-
 /**
  * Delete chat
  */

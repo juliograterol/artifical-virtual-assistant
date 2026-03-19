@@ -54,7 +54,7 @@ export function addMessage(chatId: string, message: Message) {
 
   if (!chats[chatId]) return;
 
-  chats[chatId].messages.push(message);
+  chats[chatId].messages = [...(chats[chatId].messages || []), message];
 
   saveChats(chats);
 }
