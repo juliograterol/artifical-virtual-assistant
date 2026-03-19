@@ -16,9 +16,9 @@ export default function Sidebar() {
   return (
     <aside
       className={`
-        fixed left-0 top-0 h-full w-full group z-10 text-white
+        left-0 top-0 h-full w-full group z-60 text-white shadow-[0_0_50px_0_#00000025]
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-        ${isOpen ? "max-w-xs" : isMobile ? "-translate-x-full" : "max-w-20"}
+        ${isOpen ? `max-w-xs ${isMobile ? "fixed" : "relative"}` : isMobile ? "-translate-x-full fixed" : "max-w-20 absolute"}
       `}
     >
       <SidebarToggle isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />

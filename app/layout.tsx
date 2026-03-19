@@ -26,9 +26,13 @@ export default function RootLayout({
       >
         <AppLoader>
           <Background />
-          {children}
-          <Sidebar />
-          <Footer />
+          <div className="flex h-full">
+            <Sidebar />
+            <div className="overflow-y-scroll w-full">
+              {children}
+              <Footer />
+            </div>
+          </div>
         </AppLoader>
       </body>
     </html>
