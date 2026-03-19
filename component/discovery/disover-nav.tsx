@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import GlassElement from "../glass-elemet/glass-element";
+import { useIsMobile } from "@/lib/useMobile";
 
 export default function DiscoverNav() {
   const [active, setActive] = useState(0);
@@ -9,35 +10,63 @@ export default function DiscoverNav() {
   const containerRef = useRef<HTMLUListElement | null>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
+  const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
+  const isMobile = useIsMobile();
+
   const [style, setStyle] = useState({
-    left: 0,
     width: 0,
     height: 0,
+    x: 0,
   });
 
   useEffect(() => {
-    const el = itemRefs.current[active];
+    const updatePosition = () => {
+      const el = itemRefs.current[active];
+      const container = containerRef.current;
+
+      if (el && container) {
+        const elRect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        console.log(style.x);
+
+        setStyle({
+          x: el.offsetLeft - container.scrollLeft,
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+        });
+      }
+    };
+
+    updatePosition();
+
     const container = containerRef.current;
-
-    if (el && container) {
-      const elRect = el.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-
-      setStyle({
-        left: elRect.left - containerRect.left,
-        width: elRect.width,
-        height: elRect.height,
-      });
+    if (container) {
+      container.addEventListener("scroll", updatePosition);
     }
+
+    window.addEventListener("resize", updatePosition);
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", updatePosition);
+      }
+      window.removeEventListener("resize", updatePosition);
+    };
   }, [active]);
+
   return (
-    <nav className="rounded-full bg-[#282828] px-2 py-3 w-full relative flex justify-center items-center">
+    <nav
+      onPointerDown={() => setIsPointerDown(true)}
+      onPointerUp={() => setIsPointerDown(false)}
+      className="rounded-full bg-[#282828] px-2 py-3 w-full relative flex justify-center items-center group/bar max-md:overflow-x-hidden"
+    >
       <GlassElement
-        className="absolute transition-all duration-300 mx-2 z-10"
+        className={`absolute transition-all mx-2 z-10 ${isPointerDown && isMobile ? "duration-0" : "duration-300"}`}
         theme="medium"
         rounded
         style={{
-          left: style.left,
+          left: style.x,
           width: style.width,
           height: "80%",
         }}
@@ -62,7 +91,7 @@ export default function DiscoverNav() {
               itemRefs.current[i] = el;
             }}
             onClick={() => setActive(i)}
-            className={`${active === i ? "z-10" : "z-0"} cursor-pointer px-3 py-1 select-none`}
+            className={`${active === i ? "z-10" : "z-0"} cursor-pointer px-3 py-1 select-none min-w-max`}
           >
             {item}
           </li>

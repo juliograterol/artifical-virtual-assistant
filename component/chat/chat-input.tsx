@@ -29,7 +29,7 @@ const ChatInput = ({
   };
 
   return (
-    <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl">
+    <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl max-md:px-4">
       <GlassElement>
         {/* <div className="bg-[#282828] rounded-[25px] p-6 w-full"> */}
         <textarea
