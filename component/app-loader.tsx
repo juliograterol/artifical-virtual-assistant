@@ -11,7 +11,7 @@ export default function AppLoader({ children }: { children: React.ReactNode }) {
     <>
       {!loaded && (
         <div
-          className={`fixed inset-0 z-999 bg-[#1B1B1B] flex items-center justify-center overflow-hidden 
+          className={`fixed inset-0 z-999 bg-[#1B1B1B] text-white flex items-center justify-center overflow-hidden 
           transition-opacity duration-700 ${loading ? "opacity-100" : "opacity-0"}`}
         >
           <AVA

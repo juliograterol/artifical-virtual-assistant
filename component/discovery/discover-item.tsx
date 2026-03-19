@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import GlassElement from "../glass-elemet/glass-element";
 import { startNewChat } from "@/lib/chat-actions";
+import { showAlert } from "@/lib/show-alert";
 
 type DiscoverPromp = {
   title?: string;
@@ -20,12 +21,20 @@ export default function DiscoverItem({
         <p>{prompt}</p>
         <button
           onClick={async () => {
-            const id = await startNewChat(prompt);
+            const confirmed = await showAlert({
+              title: "Prompt",
+              message: prompt,
+            });
 
-            if (id) {
-              router.push(`/c/${id}`);
+            if (confirmed) {
+              const id = await startNewChat(prompt);
+
+              if (id) {
+                router.push(`/c/${id}`);
+              }
             }
           }}
+          // onClick={() => showAlert({ title: "Prompt", message: "message" })}
           className="bg-[#505050] hover:bg-[#606060] active:bg-[#404040] cursor-pointer font-semibold px-6 py-2 rounded-full absolute opacity-0 group-hover:opacity-100 transition-all duration-150 delay-100 bottom-0 right-0"
         >
           Use
