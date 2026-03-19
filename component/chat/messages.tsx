@@ -1,13 +1,29 @@
 import MessageFormatter from "./message-formatter";
 
 interface MessageProps {
-  message?: string;
+  message?: any; // 👈 allow anything (we sanitize inside)
+}
+
+function normalizeMessage(message: any): string {
+  if (typeof message === "string") return message;
+
+  if (message && typeof message === "object") {
+    // Handle your AVA structured response
+    if (message.reply) return String(message.reply);
+
+    // fallback (debug-friendly)
+    return JSON.stringify(message, null, 2);
+  }
+
+  return "";
 }
 
 const Bubble = ({
   message,
   align = "left",
 }: { align?: "left" | "right" } & MessageProps) => {
+  const safeMessage = normalizeMessage(message);
+
   return (
     <div
       className={`p-4 text-white rounded-2xl w-max max-w-[70%] mb-4 ${
@@ -16,7 +32,7 @@ const Bubble = ({
           : "rounded-br-none bg-[#606060] self-end"
       }`}
     >
-      <MessageFormatter message={message} />
+      <MessageFormatter message={safeMessage} />
     </div>
   );
 };
@@ -26,7 +42,7 @@ const UserMessage = ({ message = "" }: MessageProps) => {
 };
 
 const AgentMessage = ({ message = "" }: MessageProps) => {
-  return <Bubble message={message} />;
+  return <Bubble message={message} align="left" />;
 };
 
 type C = {
