@@ -26,10 +26,10 @@ const Bubble = ({
 
   return (
     <div
-      className={`p-4 text-white rounded-2xl w-max max-w-[70%] mb-4 ${
+      className={`message p-4 text-white rounded-2xl w-max md:max-w-3xl max-w-[70%] mb-4 md:mx-40 ${
         align === "left"
-          ? "rounded-bl-none bg-[#282828] self-start"
-          : "rounded-br-none bg-[#606060] self-end"
+          ? "rounded-tl-none bg-[#282828] self-start left"
+          : "rounded-tr-none bg-[#606060] self-end right"
       }`}
     >
       <MessageFormatter message={safeMessage} />

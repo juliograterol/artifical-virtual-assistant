@@ -9,7 +9,7 @@ const Modal = ({
   loading?: boolean;
 }) => {
   return (
-    <div className="pb-10 flex flex-col w-full max-w-5xl overflow-y-auto chat-container">
+    <div className="p-10 flex flex-col w-full overflow-y-auto chat-container relative">
       {messages.map((msg, i) =>
         msg.role === "user" ? (
           <C.UserMessage key={i} message={msg.content} />
