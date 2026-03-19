@@ -12,10 +12,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-* {
-  color: #ffffff;
-}
-
 body {
   font-family: Arial, Helvetica, sans-serif;
   padding: 0;
