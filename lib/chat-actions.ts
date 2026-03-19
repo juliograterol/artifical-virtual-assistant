@@ -41,7 +41,16 @@ export async function startNewChat(message: string) {
       body: JSON.stringify({ message, chatId: id }),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+
+    let data = null;
+
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (e) {
+      console.error("Invalid JSON:", text);
+    }
+
     const payload = Array.isArray(data) ? data[0] : data;
 
     // ✅ Update name if AVA provides one
@@ -96,7 +105,16 @@ export async function sendMessageToChat(
       }),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+
+    let data = null;
+
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (e) {
+      console.error("Invalid JSON:", text);
+    }
+
     const payload = Array.isArray(data) ? data[0] : data;
 
     const reply =
@@ -141,6 +159,7 @@ export function deleteChat(chatId: string) {
   delete chats[chatId];
 
   saveChats(chats);
+  window.location.reload();
 }
 
 /**

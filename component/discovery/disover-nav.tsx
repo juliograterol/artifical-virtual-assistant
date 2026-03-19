@@ -28,8 +28,6 @@ export default function DiscoverNav() {
         const elRect = el.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        console.log(style.x);
-
         setStyle({
           x: el.offsetLeft - container.scrollLeft,
           width: el.offsetWidth,

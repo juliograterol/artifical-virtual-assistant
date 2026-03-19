@@ -19,7 +19,6 @@ export default function History() {
 
     // Optional: sort newest first
     list.sort((a, b) => b.createdAt - a.createdAt);
-    console.log(list);
     setChats(list);
   }, []);
 

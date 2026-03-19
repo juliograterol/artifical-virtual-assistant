@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { deleteChat } from "@/lib/chat-actions";
+import { showAlert } from "@/lib/show-alert";
 
 const Options = ({ id }: { id: string }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -35,7 +36,16 @@ const Options = ({ id }: { id: string }) => {
       >
         <button
           className="hover:bg-[#606060] text-red-500 p-2 rounded-xl select-none cursor-pointer"
-          onClick={() => deleteChat(id)}
+          onClick={async () => {
+            const confirmed = await showAlert({
+              title: "Are you sure yo want to delete chat?",
+              message:
+                "AVA doesn't have backups for chats. This action will delete this chat forever.",
+            });
+            if (confirmed) {
+              deleteChat(id);
+            }
+          }}
         >
           Delete Chat
         </button>
