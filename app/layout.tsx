@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Background from "@/component/bg";
 import { Montserrat } from "next/font/google";
-import Sidebar from "@/component/sidebar";
+import Sidebar from "@/component/sidebar/sidebar";
 import AppLoader from "@/component/app-loader";
 import Footer from "@/component/footer";
 
@@ -26,8 +26,8 @@ export default function RootLayout({
       >
         <AppLoader>
           <Background />
-          <Sidebar />
           {children}
+          <Sidebar />
           <Footer />
         </AppLoader>
       </body>

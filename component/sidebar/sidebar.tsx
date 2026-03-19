@@ -7,16 +7,18 @@ import SidebarHeader from "./sidebar-header";
 import SidebarNav from "./sidebar-nav";
 import SidebarFooter from "./sidebar-footer";
 import History from "./history";
+import { useIsMobile } from "@/lib/useMobile";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <aside
       className={`
-        fixed left-0 top-0 h-full w-full
+        fixed left-0 top-0 h-full w-full group z-10
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-        ${isOpen ? "max-w-xs" : "max-w-20"}
+        ${isOpen ? "max-w-xs" : isMobile ? "-translate-x-full" : "max-w-20"}
       `}
     >
       <SidebarToggle isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
