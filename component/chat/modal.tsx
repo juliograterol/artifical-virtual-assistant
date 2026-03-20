@@ -9,12 +9,19 @@ const Modal = ({
   loading?: boolean;
 }) => {
   return (
-    <div className="p-10 flex flex-col w-full overflow-y-auto chat-container relative">
+    <div className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto chat-container relative">
       {messages.map((msg, i) =>
         msg.role === "user" ? (
-          <C.UserMessage key={i} message={msg.content} />
+          <C.UserMessage
+            key={msg.id ?? `msg-${i}`} // 👈 fallback
+            message={msg.content}
+          />
         ) : (
-          <C.AgentMessage key={i} message={msg.content} />
+          <C.AgentMessage
+            key={msg.id ?? `msg-${i}`} // 👈 fallback
+            message={msg.content}
+            pending={msg.pending}
+          />
         ),
       )}
 

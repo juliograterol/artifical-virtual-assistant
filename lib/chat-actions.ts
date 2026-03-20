@@ -1,105 +1,22 @@
 import { getChats, saveChats, addMessage } from "@/lib/chat-storage";
 
 export type Message = {
+  id: string;
   role: "user" | "agent";
   content: string;
+  pending?: boolean;
 };
 
 const WEBHOOK_URL = "https://n8n.interactiveworkers.com/webhook/AVA";
 
 /**
- * Start a new chat
+ * 🔥 Fetch + replace pending message
  */
-export async function startNewChat(message: string) {
-  if (!message.trim()) return null;
-
-  const chats = getChats();
-  const id = crypto.randomUUID();
-
-  const newChat = {
-    id,
-    name: message.slice(0, 40) || "New Chat",
-    createdAt: Date.now(),
-    archived: false,
-    messages: [
-      {
-        role: "user" as const,
-        content: message,
-      },
-    ],
-  };
-
-  chats[id] = newChat;
-  saveChats(chats);
-
-  try {
-    const res = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message, chatId: id }),
-    });
-
-    const text = await res.text();
-
-    let data = null;
-
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch (e) {
-      console.error("Invalid JSON:", text);
-    }
-
-    const payload = Array.isArray(data) ? data[0] : data;
-
-    // ✅ Update name if AVA provides one
-    const updatedChats = getChats();
-
-    if (updatedChats[id]) {
-      if (payload?.name) {
-        updatedChats[id].name = payload.name;
-      }
-
-      updatedChats[id].messages = [
-        ...(updatedChats[id].messages || []),
-        {
-          role: "agent",
-          content: payload?.reply || "No response received.",
-        },
-      ];
-
-      saveChats(updatedChats);
-    }
-
-    // ✅ Save agent response
-    chats[id].messages.push({
-      role: "agent",
-      content: payload?.reply || "No response received.",
-    });
-
-    saveChats(chats);
-  } catch (err) {
-    console.error("Error starting chat:", err);
-  }
-
-  return id; // 👈 let caller handle routing
-}
-
-/**
- * Send message in existing chat
- */
-export async function sendMessageToChat(chatId: string, message: string) {
-  if (!message.trim()) return null;
-
-  const userMessage: Message = {
-    role: "user",
-    content: message,
-  };
-
-  // ✅ always write immediately
-  addMessage(chatId, userMessage);
-
+async function fetchResponse(
+  chatId: string,
+  message: string,
+  pendingId: string,
+) {
   try {
     const res = await fetch(WEBHOOK_URL, {
       method: "POST",
@@ -125,62 +42,114 @@ export async function sendMessageToChat(chatId: string, message: string) {
       payload?.message ||
       (typeof payload === "string" ? payload : "No response received.");
 
-    const agentMessage: Message = {
-      role: "agent",
-      content: reply,
-    };
-
-    // ✅ ALWAYS re-fetch before modifying
     const chats = getChats();
+    if (!chats[chatId]) return;
 
-    if (chats[chatId]) {
-      chats[chatId].messages = [
-        ...(chats[chatId].messages || []),
-        agentMessage,
-      ];
+    chats[chatId].messages = chats[chatId].messages.map((msg: Message) =>
+      msg.id === pendingId
+        ? {
+            id: pendingId,
+            role: "agent",
+            content: reply,
+          }
+        : msg,
+    );
 
-      // ✅ update name HERE too
-      if (payload?.name) {
-        chats[chatId].name = payload.name;
-      }
-
-      saveChats(chats);
+    if (payload?.name) {
+      chats[chatId].name = payload.name;
     }
 
-    return agentMessage;
+    saveChats(chats);
+    window.dispatchEvent(new Event("chat-updated"));
   } catch (err) {
-    console.error("Error sending message:", err);
+    console.error("Error fetching response:", err);
 
-    const errorMessage: Message = {
-      role: "agent",
-      content: "Something went wrong. Please try again.",
-    };
+    const chats = getChats();
+    if (!chats[chatId]) return;
 
-    addMessage(chatId, errorMessage);
+    chats[chatId].messages = chats[chatId].messages.map((msg: Message) =>
+      msg.id === pendingId
+        ? {
+            id: pendingId,
+            role: "agent",
+            content: "Something went wrong. Please try again.",
+          }
+        : msg,
+    );
 
-    return errorMessage;
+    saveChats(chats);
+    window.dispatchEvent(new Event("chat-updated"));
   }
 }
+
 /**
- * Delete chat
+ * 🚀 Start new chat
+ */
+export async function startNewChat(message: string) {
+  if (!message.trim()) return null;
+
+  const chats = getChats();
+  const chatId = crypto.randomUUID();
+  const pendingId = crypto.randomUUID();
+
+  chats[chatId] = {
+    id: chatId,
+    name: message.slice(0, 40) || "New Chat",
+    createdAt: Date.now(),
+    // archived: false,
+    messages: [
+      {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: message,
+      },
+      {
+        id: pendingId,
+        role: "agent",
+        content: "",
+        pending: true,
+      },
+    ],
+  };
+
+  saveChats(chats);
+  fetchResponse(chatId, message, pendingId);
+
+  return chatId;
+}
+
+/**
+ * 💬 Send message
+ */
+export async function sendMessageToChat(chatId: string, message: string) {
+  if (!message.trim()) return null;
+
+  const pendingId = crypto.randomUUID();
+
+  addMessage(chatId, {
+    id: crypto.randomUUID(),
+    role: "user",
+    content: message,
+  });
+
+  addMessage(chatId, {
+    id: pendingId,
+    role: "agent",
+    content: "",
+    pending: true,
+  });
+
+  fetchResponse(chatId, message, pendingId);
+
+  return true;
+}
+
+/**
+ * 🗑 Delete chat
  */
 export function deleteChat(chatId: string) {
   const chats = getChats();
-
   delete chats[chatId];
-
   saveChats(chats);
   window.location.reload();
 }
-
-/**
- * Archive chat
- */
-// export function archiveChat(chatId: string) {
-//   const chats = getChats();
-
-//   if (chats[chatId]) {
-//     chats[chatId].archived = true;
-//     saveChats(chats);
-//   }
-// }

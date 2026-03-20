@@ -28,5 +28,10 @@ export default function MessageFormatter({ message = "" }: Props) {
     setFormattedMessage(text);
   }, [message]);
 
-  return <div dangerouslySetInnerHTML={{ __html: formattedMessage }} />;
+  return (
+    <div
+      dangerouslySetInnerHTML={{ __html: formattedMessage }}
+      className="w-full md:max-w-3xl sm:max-w-9/12 max-w-11/12 max-md:text-sm"
+    />
+  );
 }
