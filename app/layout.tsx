@@ -30,7 +30,7 @@ export default function RootLayout({
             <Sidebar />
             <div className="overflow-y-scroll w-full">
               {children}
-              <Footer />
+              {/* <Footer /> */}
             </div>
           </div>
         </AppLoader>

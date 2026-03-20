@@ -1,4 +1,5 @@
 import MessageFormatter from "./message-formatter";
+import { forwardRef } from "react";
 
 interface MessageProps {
   message?: any; // 👈 allow anything (we sanitize inside)
@@ -19,15 +20,19 @@ function normalizeMessage(message: any): string {
   return "";
 }
 
-const Bubble = ({
-  message,
-  align = "left",
-  pending = false,
-}: { align?: "left" | "right" } & MessageProps) => {
+const Bubble = forwardRef<
+  HTMLDivElement,
+  {
+    message: string;
+    align?: "left" | "right";
+    pending?: boolean;
+  }
+>(({ message, align = "left", pending = false }, ref) => {
   const safeMessage = normalizeMessage(message);
 
   return (
     <div
+      ref={ref}
       className={`message p-4 text-white rounded-2xl mb-4 md:mx-40 ${
         align === "left"
           ? "rounded-tl-none bg-[#282828] self-start left sm:mr-40 mr-8"
@@ -45,15 +50,26 @@ const Bubble = ({
       )}
     </div>
   );
-};
+});
 
-const UserMessage = ({ message = "" }: MessageProps) => {
-  return <Bubble message={message} align="right" />;
-};
+Bubble.displayName = "Bubble";
 
-const AgentMessage = ({ message = "", pending = false }: MessageProps) => {
-  return <Bubble message={message} align="left" pending={pending} />;
-};
+const UserMessage = forwardRef<HTMLDivElement, MessageProps>(
+  ({ message = "" }, ref) => {
+    return <Bubble ref={ref} message={message} align="right" />;
+  },
+);
+
+const AgentMessage = forwardRef<HTMLDivElement, MessageProps>(
+  ({ message = "", pending = false }, ref) => {
+    return (
+      <Bubble ref={ref} message={message} align="left" pending={pending} />
+    );
+  },
+);
+
+UserMessage.displayName = "UserMessage";
+AgentMessage.displayName = "AgentMessage";
 
 type C = {
   UserMessage: typeof UserMessage;

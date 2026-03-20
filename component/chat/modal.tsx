@@ -1,5 +1,6 @@
 import { Message } from "@/lib/chat-storage";
 import C from "./messages";
+import { useEffect, useRef } from "react";
 
 const Modal = ({
   messages,
@@ -8,24 +9,36 @@ const Modal = ({
   messages: Message[];
   loading?: boolean;
 }) => {
-  return (
-    <div className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto chat-container relative">
-      {messages.map((msg, i) =>
-        msg.role === "user" ? (
-          <C.UserMessage
-            key={msg.id ?? `msg-${i}`} // 👈 fallback
-            message={msg.content}
-          />
-        ) : (
-          <C.AgentMessage
-            key={msg.id ?? `msg-${i}`} // 👈 fallback
-            message={msg.content}
-            pending={msg.pending}
-          />
-        ),
-      )}
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-      {loading && <C.AgentMessage message="AVA is typing..." />}
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    requestAnimationFrame(() => {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+  }, [messages, loading]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto chat-container relative"
+    >
+      {messages.map((msg, i) => {
+        const commonProps = {
+          message: msg.content,
+          ...(msg.pending !== undefined && { pending: msg.pending }),
+        };
+        return msg.role === "user" ? (
+          <C.UserMessage key={msg.id ?? `msg-${i}`} {...commonProps} />
+        ) : (
+          <C.AgentMessage key={msg.id ?? `msg-${i}`} {...commonProps} />
+        );
+      })}
     </div>
   );
 };
