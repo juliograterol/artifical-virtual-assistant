@@ -25,9 +25,14 @@ export default function History() {
   return (
     <ul className="flex flex-col bg-[#1B1B1B] mx-4 rounded-xl items-center">
       <ChatItem name="New Chat" />
-      {chats.map((chat) => (
+      {chats.slice(0, 3).map((chat) => (
         <ChatItem key={chat.id} name={chat.name} id={chat.id} />
       ))}
+      {chats.length > 3 && (
+        <li className="text-start w-full px-4 font-semibold select-none">
+          . . .
+        </li>
+      )}
       <div className="h-px bg-[#606060] w-10/12 mt-6" />
       <li className="relative hover:bg-[#404040] rounded-xl group flex items-center w-full cursor-pointer px-4">
         <svg

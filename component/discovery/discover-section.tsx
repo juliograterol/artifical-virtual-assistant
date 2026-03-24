@@ -4,6 +4,7 @@ import { useRef } from "react";
 import DiscoverItem from "./discover-item";
 import DiscoverNav from "./disover-nav";
 import { RefObject } from "react";
+import { prompts } from "./prompts";
 
 export default function Discover({
   headerRef,
@@ -37,10 +38,9 @@ export default function Discover({
         <DiscoverNav />
       </header>
       <div className="py-8 w-full grid md:grid-cols-4 sm:grid-cols-2 gap-4">
-        <DiscoverItem />
-        <DiscoverItem />
-        <DiscoverItem />
-        <DiscoverItem />
+        {prompts.map((prompt, i) => {
+          return <DiscoverItem key={i} {...prompt} />;
+        })}
       </div>
     </section>
   );

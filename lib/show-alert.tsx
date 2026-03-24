@@ -1,18 +1,17 @@
-// lib/show-alert.tsx
 "use client";
 
-import Alert from "@/component/alert";
 import { createRoot } from "react-dom/client";
+import { ReactNode } from "react";
+import Alert from "@/component/alert";
 
 type ShowAlertOptions = {
   title?: string;
-  message: string;
+  message?: string;
+  description?: string;
+  form?: ReactNode;
 };
 
-export function showAlert({
-  title,
-  message,
-}: ShowAlertOptions): Promise<boolean> {
+export function showAlert(options: ShowAlertOptions): Promise<boolean> {
   return new Promise((resolve) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -26,8 +25,7 @@ export function showAlert({
 
     root.render(
       <Alert
-        title={title}
-        message={message}
+        {...options}
         onCancel={() => {
           cleanup();
           resolve(false);

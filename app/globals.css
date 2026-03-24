@@ -27,19 +27,6 @@ body {
   /* animation: moveBackground 60s linear infinite; */
 }
 
-.bg-loop {
-  /* filter: brightness(0.3); */
-}
-
-@keyframes moveBackground {
-  from {
-    background-position: 0% 0%;
-  }
-  to {
-    background-position: 0% -500%;
-  }
-}
-
 /* 1. The width of the entire scrollbar */
 .chat-container::-webkit-scrollbar {
   width: 6px;

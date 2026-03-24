@@ -38,7 +38,7 @@ const Options = ({ id }: { id: string }) => {
           className="hover:bg-[#606060] text-red-500 p-2 rounded-xl select-none cursor-pointer"
           onClick={async () => {
             const confirmed = await showAlert({
-              title: "Are you sure yo want to delete chat?",
+              title: "Delete chat?",
               message:
                 "AVA doesn't have backups for chats. This action will delete this chat forever.",
             });

@@ -4,7 +4,6 @@ import Background from "@/component/bg";
 import { Montserrat } from "next/font/google";
 import Sidebar from "@/component/sidebar/sidebar";
 import AppLoader from "@/component/app-loader";
-import Footer from "@/component/footer";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
