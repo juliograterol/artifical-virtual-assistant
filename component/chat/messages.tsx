@@ -33,7 +33,7 @@ const Bubble = forwardRef<
   return (
     <div
       ref={ref}
-      className={`message p-4 text-white rounded-2xl mb-4 md:mx-40 ${
+      className={`message p-4 text-white rounded-2xl md:max-w-1/2 mb-4 md:mx-40 ${
         align === "left"
           ? "rounded-tl-none bg-[#282828] self-start left sm:mr-40 mr-8"
           : "rounded-tr-none bg-[#606060] self-end right sm:ml-40 ml-8"
