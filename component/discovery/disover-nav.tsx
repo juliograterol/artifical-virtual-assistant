@@ -25,21 +25,27 @@ export default function DiscoverNav({
   });
 
   // ✅ dynamic tabs from prompts
-  const tabs: { label: string; key: PromptTab }[] = Object.keys(prompts).map(
-    (key) => ({
+  const tabs: { label: string; key: PromptTab | "recommended" }[] = [
+    { label: "Recommended", key: "recommended" },
+    ...Object.keys(prompts).map((key) => ({
       key: key as PromptTab,
       label: key.charAt(0).toUpperCase() + key.slice(1),
-    }),
-  );
+    })),
+  ];
 
   const handleActive = (index: number) => {
     setActive(index);
-    onChange?.(tabs[index].key);
-  };
 
+    const key = tabs[index].key;
+    if (key !== "recommended") {
+      onChange?.(key);
+    } else {
+      onChange?.("recommended" as any); // or handle separately upstream
+    }
+  };
   // ✅ set initial tab
   useEffect(() => {
-    onChange?.(tabs[0].key);
+    onChange?.(tabs[0].key as PromptTab);
   }, []);
 
   useEffect(() => {
@@ -100,27 +106,50 @@ export default function DiscoverNav({
 
       <ul
         ref={containerRef}
-        className="flex items-center gap-4 w-full relative max-md:overflow-scroll"
+        className="flex items-center md:justify-around gap-4 w-full relative md:overflow-x-hidden max-md:overflow-scroll"
       >
         {tabs.map((item, i) => (
-          <li
-            key={item.key} // ✅ stable key
+          <DiscoverNavItem
+            key={item.key}
             ref={(el) => {
               itemRefs.current[i] = el;
             }}
-            className={active === i ? "z-10" : "z-0"}
-          >
-            <button
-              className={`cursor-pointer px-3 py-1 select-none min-w-max 
-                ${item.label.length <= 2 ? "uppercase" : "capitalize"} disabled:text-[#606060] disabled:cursor-not-allowed`}
-              disabled={prompts[item.key].length === 0}
-              onClick={() => handleActive(i)}
-            >
-              {item.label}
-            </button>
-          </li>
+            label={item.label}
+            isActive={active === i}
+            onClick={() => handleActive(i)}
+            disabled={
+              item.key !== "recommended" && prompts[item.key].length === 0
+            }
+          />
         ))}
       </ul>
     </nav>
   );
 }
+
+const DiscoverNavItem = ({
+  label,
+  isActive,
+  ref,
+  onClick,
+  disabled,
+}: {
+  label: string;
+  isActive: boolean;
+  ref: (el: any) => void;
+  onClick: () => void;
+  disabled: boolean;
+}) => {
+  return (
+    <li ref={ref} className={`${isActive ? "z-10" : "z-0"} w-full text-center`}>
+      <button
+        className={`cursor-pointer px-3 py-1 select-none min-w-max 
+                ${label.length <= 2 ? "uppercase" : "capitalize"} disabled:text-[#606060] disabled:cursor-not-allowed`}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {label}
+      </button>
+    </li>
+  );
+};
