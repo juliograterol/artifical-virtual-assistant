@@ -31,12 +31,30 @@ export function getChat(id: string): ChatSession | null {
   return chats[id] ?? null;
 }
 
-export function addMessage(chatId: string, message: Message) {
+export function addMessage(chatId: string, message: Message, newName?: string) {
   const chats = getChats();
-  if (!chats[chatId]) return;
+  const chat = chats[chatId];
+  if (!chat) return;
 
-  chats[chatId].messages = [...chats[chatId].messages, message];
+  chat.messages = [...chat.messages, message];
+  console.log(newName, chat.name);
+  // If a new name is provided (e.g., AI generated), update it
+  if (newName && chat.name === "New Chat") {
+    updateChatName(chatId, newName);
+    // chat.name = newName;
+  }
 
+  saveChats(chats);
+  window.dispatchEvent(new Event("chat-updated"));
+}
+
+// New function to update the chat name explicitly
+export function updateChatName(chatId: string, name: string) {
+  const chats = getChats();
+  const chat = chats[chatId];
+  if (!chat) return;
+
+  chat.name = name;
   saveChats(chats);
   window.dispatchEvent(new Event("chat-updated"));
 }

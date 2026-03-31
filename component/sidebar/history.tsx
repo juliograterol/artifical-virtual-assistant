@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Options from "../options";
 
-type Chat = {
+export type Chat = {
   id: string;
   name: string;
   createdAt: number;
@@ -49,7 +49,7 @@ export default function History() {
         </svg>
         <Link
           className="block w-full p-4 truncate whitespace-nowrap overflow-hidden"
-          href={""}
+          href={"/history"}
         >
           View All History
         </Link>

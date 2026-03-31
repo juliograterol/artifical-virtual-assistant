@@ -1,4 +1,9 @@
-import { getChats, saveChats, addMessage } from "@/lib/chat-storage";
+import {
+  getChats,
+  saveChats,
+  addMessage,
+  updateChatName,
+} from "@/lib/chat-storage";
 
 export type Message = {
   id: string;
@@ -45,6 +50,7 @@ async function fetchResponse(
     const chats = getChats();
     if (!chats[chatId]) return;
 
+    // Replace pending message
     chats[chatId].messages = chats[chatId].messages.map((msg: Message) =>
       msg.id === pendingId
         ? {
@@ -55,8 +61,13 @@ async function fetchResponse(
         : msg,
     );
 
-    if (payload?.name) {
-      chats[chatId].name = payload.name;
+    saveChats(chats);
+
+    // Update name separately (clean responsibility split)
+    if (payload?.name && chats[chatId].name === "New Chat") {
+      updateChatName(chatId, payload.name);
+    } else {
+      window.dispatchEvent(new Event("chat-updated"));
     }
 
     saveChats(chats);
@@ -94,7 +105,7 @@ export async function startNewChat(message: string) {
 
   chats[chatId] = {
     id: chatId,
-    name: message.slice(0, 40) || "New Chat",
+    name: "New Chat",
     createdAt: Date.now(),
     // archived: false,
     messages: [

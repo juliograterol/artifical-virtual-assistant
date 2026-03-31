@@ -75,10 +75,10 @@ export default function DiscoverNav({
   }, [active]);
 
   // ✅ auto scroll active into view (mobile polish)
-  useEffect(() => {
-    const el = itemRefs.current[active];
-    el?.scrollIntoView({ behavior: "smooth", inline: "center" });
-  }, [active]);
+  // useEffect(() => {
+  //   const el = itemRefs.current[active];
+  //   el?.scrollIntoView({ behavior: "smooth", inline: "center" });
+  // }, [active]);
 
   return (
     <nav
@@ -106,7 +106,7 @@ export default function DiscoverNav({
 
       <ul
         ref={containerRef}
-        className="flex items-center md:justify-around gap-4 w-full relative md:overflow-x-hidden max-md:overflow-scroll"
+        className="flex items-center md:justify-around gap-4 w-full relative overflow-x-hidden max-md:overflow-scroll"
       >
         {tabs.map((item, i) => (
           <DiscoverNavItem
