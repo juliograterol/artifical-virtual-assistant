@@ -28,7 +28,10 @@ export default function Discover({
   );
 
   return (
-    <section className="w-full md:max-w-8/12 md:p-10 px-4 flex flex-col min-h-screen items-center">
+    <section
+      id={"prompt-templates"}
+      className="w-full md:max-w-8/12 md:p-10 px-4 flex flex-col min-h-screen items-center"
+    >
       <header ref={headerRef} className="w-full">
         <div className="flex w-full md:items-center justify-between mb-4 max-md:flex-col items-start">
           <h2 className="text-4xl text-white text-center font-medium mb-4">

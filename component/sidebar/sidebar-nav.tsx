@@ -5,7 +5,7 @@ export default function SidebarNav({ isOpen }: { isOpen: boolean }) {
     <ul className={`flex flex-col p-4 ${!isOpen && "pointer-events-none"}`}>
       <li>
         <Link
-          href={""}
+          href={"/#prompt-templates"}
           className="flex gap-2 items-center p-4  hover:bg-[#606060] rounded-xl"
         >
           <svg
@@ -33,7 +33,7 @@ export default function SidebarNav({ isOpen }: { isOpen: boolean }) {
 
       <li>
         <Link
-          href={""}
+          href={"/settings"}
           className="flex gap-2 items-center p-4 hover:bg-[#606060] rounded-xl"
         >
           <svg

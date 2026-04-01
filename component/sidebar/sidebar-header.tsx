@@ -5,7 +5,7 @@ export default function SidebarHeader({ isOpen }: { isOpen: boolean }) {
   return (
     <div className={`flex items-center gap-2 ${isOpen ? "p-4" : "mb-2"}`}>
       <GlassElement
-        className={`aspect-square transition-all ${isOpen ? "w-1/2" : "w-full"}`}
+        className={`aspect-square transition-all active:scale-95 ${isOpen ? "w-1/2" : "w-full"}`}
         rounded={25}
       >
         <Link href="/" className="h-full flex justify-center">
