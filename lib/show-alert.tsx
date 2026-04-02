@@ -7,6 +7,7 @@ import Alert from "@/component/alert";
 type ShowAlertOptions = {
   title?: string;
   message?: string;
+  icon?: "info" | "warning";
   description?: string;
   form?: ReactNode;
 };

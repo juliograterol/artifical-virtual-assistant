@@ -1,11 +1,13 @@
 // components/ui/Alert.tsx
 "use client";
 
+import AlertIcon from "./alert-icon";
 import GlassElement from "./glass-elemet/glass-element";
 
 type AlertProps = {
   title?: string;
   message?: string;
+  icon?: "info" | "warning";
   description?: string;
   form?: React.ReactNode;
   onCancel?: () => void;
@@ -15,6 +17,7 @@ type AlertProps = {
 export default function Alert({
   title = "Alert!",
   message,
+  icon,
   form,
   description,
   onCancel,
@@ -25,18 +28,23 @@ export default function Alert({
       <div className="relative">
         <GlassElement className="text-white w-full md:max-w-3xl z-10">
           {form ?? (
-            <form className="w-full flex flex-col gap-4 md:p-10 p-4">
-              <h1 className="md:text-5xl sm:text-4xl text-3xl font-medium leading-4">
+            <form className="w-full grid gap-4 md:p-10 p-4">
+              {icon && (
+                <div className="w-full flex justify-center">
+                  <AlertIcon icon={icon} />
+                </div>
+              )}
+              <h1 className="md:text-5xl sm:text-4xl text-3xl text-center font-medium">
                 {title}
               </h1>
               {description && <h2>{description}</h2>}
 
               <p>{message}</p>
 
-              <div className="flex gap-4 w-full justify-end font-semibold">
+              <div className="flex gap-4 w-full justify-center font-semibold">
                 <button
                   onClick={onConfirm}
-                  className="bg-black rounded-full px-4 py-2 cursor-pointer"
+                  className="text-black bg-white rounded px-4 py-2 cursor-pointer md:w-9/12 w-full"
                 >
                   Continue
                 </button>

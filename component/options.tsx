@@ -39,6 +39,7 @@ const Options = ({ id }: { id: string }) => {
           onClick={async () => {
             const confirmed = await showAlert({
               title: "Delete chat?",
+              icon: "warning",
               message:
                 "AVA doesn't have backups for chats. This action will delete this chat forever.",
             });
