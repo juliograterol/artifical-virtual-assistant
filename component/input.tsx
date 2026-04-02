@@ -15,15 +15,20 @@ export default function Input(props: InputProps) {
       const { label } = props;
       return (
         <div className="flex items-center gap-2">
-          <div className="border border-[#404040] rounded-full b relative w-16 overflow-hidden">
-            <input
-              type="checkbox"
-              className="peer z-10 absolute w-full h-full opacity-0"
-            />
-            <div className="peer-checked:bg-white/30 absolute w-full h-full top-0 left-0 transition-all duration-150" />
-            <div className="bg-[#404040] peer-checked:bg-white peer-checked:translate-x-full rounded-full h-7 w-7 m-1 top-0 left-0 -z-10 transition-all" />
-          </div>
-          <label>{label}</label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <div className="relative w-16 h-9">
+              {/* ✅ peer MUST come first */}
+              <input
+                type="checkbox"
+                className="peer absolute w-full h-full opacity-0 z-10 cursor-pointer"
+              />
+              {/* ✅ track */}
+              <div className="absolute inset-0 rounded-full border border-[#404040] transition-all duration-200 peer-checked:border-[#606060] peer-checked:bg-[#606060]/50" />
+              {/* ✅ thumb */}
+              <div className="absolute top-1 left-1 h-7 w-7 rounded-full bg-[#404040] transition-all duration-200 peer-checked:bg-white peer-checked:translate-x-7 peer-active:scale-90" />
+            </div>
+            <span className="text-white">{label}</span>
+          </label>
         </div>
       );
     }
