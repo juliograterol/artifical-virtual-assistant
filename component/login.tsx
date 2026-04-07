@@ -2,19 +2,32 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { login } from "@/lib/auth-actions";
+import { showAlert } from "@/lib/show-alert";
 
-export default function Login() {
+export default function Login({ onLogin }: { onLogin?: () => void }) {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log("Login data:", form);
-
-    // TODO: call your auth API here
+    try {
+      await login(form.email, form.password);
+      await showAlert({
+        icon: "info",
+        title: "Logged in!",
+        message: "You're all set. You can speak with AVA freely from now on.",
+        onConfirm: onLogin,
+      });
+    } catch (err) {
+      await showAlert({
+        icon: "warning",
+        title: "Error Loggin In",
+        message: "Incorret email or password. Try again.",
+      });
+    }
   };
 
   return (

@@ -2,6 +2,7 @@
 
 import Input from "@/component/input";
 import SearchInput from "@/component/search-input";
+import { logout } from "@/lib/auth-actions";
 
 export default function SettingsPage() {
   return (
@@ -28,6 +29,12 @@ export default function SettingsPage() {
               type="submit"
             >
               Save
+            </button>
+            <button
+              className="w-min px-4 py-2 rounded bg-[#606060] cursor-pointer"
+              onClick={logout}
+            >
+              Logout
             </button>
           </form>
         </section>

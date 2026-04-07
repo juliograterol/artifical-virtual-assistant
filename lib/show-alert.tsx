@@ -1,18 +1,9 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import { ReactNode } from "react";
-import Alert from "@/component/alert";
+import Alert, { AlertProps } from "@/component/alert";
 
-type ShowAlertOptions = {
-  title?: string;
-  message?: string;
-  icon?: "info" | "warning";
-  description?: string;
-  form?: ReactNode;
-};
-
-export function showAlert(options: ShowAlertOptions): Promise<boolean> {
+export function showAlert(options: AlertProps): Promise<boolean> {
   return new Promise((resolve) => {
     const container = document.createElement("div");
     document.body.appendChild(container);

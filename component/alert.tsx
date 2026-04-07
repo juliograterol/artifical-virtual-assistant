@@ -3,8 +3,9 @@
 
 import AlertIcon from "./alert-icon";
 import GlassElement from "./glass-elemet/glass-element";
+import { useState } from "react";
 
-type AlertProps = {
+export type AlertProps = {
   title?: string;
   message?: string;
   icon?: "info" | "warning";
@@ -23,10 +24,32 @@ export default function Alert({
   onCancel,
   onConfirm,
 }: AlertProps) {
+  const [closing, setClosing] = useState(false);
+
+  const handleCancel = () => {
+    setClosing(true);
+
+    setTimeout(() => {
+      onCancel?.();
+    }, 300); // match your CSS animation duration
+  };
+
+  const handleConfirm = () => {
+    setClosing(true);
+
+    setTimeout(() => {
+      onConfirm?.();
+    }, 300);
+  };
+
   return (
-    <section className="absolute top-0 left-0 w-full h-full z-100 p-4 flex justify-center items-center bg-black/40 backdrop-blur-xs">
+    <section
+      className={`absolute top-0 left-0 w-full h-full z-100 p-4 flex justify-center items-center bg-black/40 backdrop-blur-xs ${
+        closing ? "alert-out" : "alert-in"
+      }`}
+    >
       <div className="relative">
-        <GlassElement className="text-white w-full md:max-w-3xl z-10">
+        <GlassElement className="text-white w-full md:max-w-3xl md:min-w-xl z-10">
           {form ?? (
             <form className="w-full grid gap-4 md:p-10 p-4">
               {icon && (
@@ -43,7 +66,7 @@ export default function Alert({
 
               <div className="flex gap-4 w-full justify-center font-semibold">
                 <button
-                  onClick={onConfirm}
+                  onClick={handleConfirm}
                   className="text-black bg-white rounded px-4 py-2 cursor-pointer md:w-9/12 w-full"
                 >
                   Continue
@@ -54,7 +77,7 @@ export default function Alert({
         </GlassElement>
         {onCancel && (
           <button
-            onClick={onCancel}
+            onClick={handleCancel}
             className="absolute top-0 left-full -translate-x-2/3 m-2 z-20"
           >
             <GlassElement
