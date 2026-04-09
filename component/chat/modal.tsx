@@ -31,7 +31,7 @@ const Modal = ({
       {messages.map((msg, i) => {
         const commonProps = {
           message: msg.content,
-          ...(msg.pending !== undefined && { pending: msg.pending }),
+          status: msg.status ?? "sent",
         };
         return msg.role === "user" ? (
           <C.UserMessage key={msg.id ?? `msg-${i}`} {...commonProps} />

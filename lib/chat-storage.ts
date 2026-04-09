@@ -1,60 +1,72 @@
+import { db } from "./firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
+  serverTimestamp,
+} from "firebase/firestore";
+
 export type Role = "user" | "agent";
 
 export type Message = {
   id: string;
   role: Role;
   content: string;
-  pending?: boolean;
+  status: "loading" | "sent" | "error";
 };
 
 export type ChatSession = {
   id: string;
-  name: string;
   createdAt: number;
   messages: Message[];
 };
 
-const STORAGE_KEY = "ava_chats";
+// ✅ Get all chats
+export async function getChats() {
+  const snap = await getDocs(collection(db, "chats"));
 
-export function getChats(): Record<string, ChatSession> {
-  if (typeof window === "undefined") return {};
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : {};
+  return snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
 }
 
-export function saveChats(chats: Record<string, ChatSession>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
+// ✅ Get single chat + messages
+export async function getChat(chatId: string): Promise<ChatSession | null> {
+  const chatRef = doc(db, "chats", chatId);
+  const chatSnap = await getDoc(chatRef);
+
+  if (!chatSnap.exists()) return null;
+
+  const messagesQuery = query(
+    collection(db, `chats/${chatId}/messages`),
+    orderBy("sentAt", "asc"),
+  );
+
+  const messagesSnap = await getDocs(messagesQuery);
+
+  const messages: Message[] = messagesSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as any),
+  }));
+
+  return {
+    id: chatId,
+    createdAt: chatSnap.data().createdAt?.toMillis?.() ?? Date.now(),
+    messages,
+  };
 }
 
-export function getChat(id: string): ChatSession | null {
-  const chats = getChats();
-  return chats[id] ?? null;
-}
+// ✅ Add message (generic helper)
+export async function addMessage(chatId: string, message: Omit<Message, "id">) {
+  const messagesRef = collection(db, `chats/${chatId}/messages`);
 
-export function addMessage(chatId: string, message: Message, newName?: string) {
-  const chats = getChats();
-  const chat = chats[chatId];
-  if (!chat) return;
-
-  chat.messages = [...chat.messages, message];
-  console.log(newName, chat.name);
-  // If a new name is provided (e.g., AI generated), update it
-  if (newName && chat.name === "New Chat") {
-    updateChatName(chatId, newName);
-    // chat.name = newName;
-  }
-
-  saveChats(chats);
-  window.dispatchEvent(new Event("chat-updated"));
-}
-
-// New function to update the chat name explicitly
-export function updateChatName(chatId: string, name: string) {
-  const chats = getChats();
-  const chat = chats[chatId];
-  if (!chat) return;
-
-  chat.name = name;
-  saveChats(chats);
-  window.dispatchEvent(new Event("chat-updated"));
+  await addDoc(messagesRef, {
+    ...message,
+    sentAt: serverTimestamp(),
+  });
 }

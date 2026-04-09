@@ -1,26 +1,32 @@
+"use client";
+
+import { db } from "@/lib/firebase";
 import {
-  getChats,
-  saveChats,
-  addMessage,
-  updateChatName,
-} from "@/lib/chat-storage";
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  serverTimestamp,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
 
 export type Message = {
   id: string;
   role: "user" | "agent";
   content: string;
-  pending?: boolean;
+  status: "loading" | "sent" | "error";
 };
 
 const WEBHOOK_URL = "https://n8n.interactiveworkers.com/webhook/AVA";
 
 /**
- * 🔥 Fetch + replace pending message
+ * 🔥 Fetch + update message status
  */
 async function fetchResponse(
   chatId: string,
   message: string,
-  pendingId: string,
+  messageRef: ReturnType<typeof doc>,
 ) {
   try {
     const res = await fetch(WEBHOOK_URL, {
@@ -47,49 +53,33 @@ async function fetchResponse(
       payload?.message ||
       (typeof payload === "string" ? payload : "No response received.");
 
-    const chats = getChats();
-    if (!chats[chatId]) return;
+    await updateDoc(messageRef, {
+      content: reply,
+      status: "sent",
+    });
 
-    // Replace pending message
-    chats[chatId].messages = chats[chatId].messages.map((msg: Message) =>
-      msg.id === pendingId
-        ? {
-            id: pendingId,
-            role: "agent",
-            content: reply,
-          }
-        : msg,
-    );
+    // ✅ optional: update chat name
+    if (payload?.name) {
+      const chatRef = doc(db, "chats", chatId);
+      const chatSnap = await getDoc(chatRef);
 
-    saveChats(chats);
+      if (chatSnap.exists()) {
+        const currentName = chatSnap.data()?.name;
 
-    // Update name separately (clean responsibility split)
-    if (payload?.name && chats[chatId].name === "New Chat") {
-      updateChatName(chatId, payload.name);
-    } else {
-      window.dispatchEvent(new Event("chat-updated"));
+        if (currentName === "New Chat") {
+          await updateDoc(chatRef, {
+            name: payload.name,
+          });
+        }
+      }
     }
-
-    saveChats(chats);
-    window.dispatchEvent(new Event("chat-updated"));
   } catch (err) {
     console.error("Error fetching response:", err);
 
-    const chats = getChats();
-    if (!chats[chatId]) return;
-
-    chats[chatId].messages = chats[chatId].messages.map((msg: Message) =>
-      msg.id === pendingId
-        ? {
-            id: pendingId,
-            role: "agent",
-            content: "Something went wrong. Please try again.",
-          }
-        : msg,
-    );
-
-    saveChats(chats);
-    window.dispatchEvent(new Event("chat-updated"));
+    await updateDoc(messageRef, {
+      content: "Failed. Tap to retry.",
+      status: "error",
+    });
   }
 }
 
@@ -99,32 +89,35 @@ async function fetchResponse(
 export async function startNewChat(message: string) {
   if (!message.trim()) return null;
 
-  const chats = getChats();
-  const chatId = crypto.randomUUID();
-  const pendingId = crypto.randomUUID();
-
-  chats[chatId] = {
-    id: chatId,
+  // 1. Create chat
+  const chatRef = await addDoc(collection(db, "chats"), {
     name: "New Chat",
-    createdAt: Date.now(),
-    // archived: false,
-    messages: [
-      {
-        id: crypto.randomUUID(),
-        role: "user",
-        content: message,
-      },
-      {
-        id: pendingId,
-        role: "agent",
-        content: "",
-        pending: true,
-      },
-    ],
-  };
+    createdAt: serverTimestamp(),
+    type: "private",
+  });
 
-  saveChats(chats);
-  fetchResponse(chatId, message, pendingId);
+  const chatId = chatRef.id;
+
+  // 2. Add user message
+  await addDoc(collection(db, `chats/${chatId}/messages`), {
+    role: "user",
+    content: message,
+    status: "sent",
+    sentAt: serverTimestamp(),
+  });
+
+  // 3. Create loading agent message
+  const pendingRef = doc(collection(db, `chats/${chatId}/messages`));
+
+  await setDoc(pendingRef, {
+    role: "agent",
+    content: "...",
+    status: "loading",
+    sentAt: serverTimestamp(),
+  });
+
+  // 4. Fetch response
+  fetchResponse(chatId, message, pendingRef);
 
   return chatId;
 }
@@ -135,32 +128,53 @@ export async function startNewChat(message: string) {
 export async function sendMessageToChat(chatId: string, message: string) {
   if (!message.trim()) return null;
 
-  const pendingId = crypto.randomUUID();
-
-  addMessage(chatId, {
-    id: crypto.randomUUID(),
+  // 1. User message
+  await addDoc(collection(db, `chats/${chatId}/messages`), {
     role: "user",
     content: message,
+    status: "sent",
+    sentAt: serverTimestamp(),
   });
 
-  addMessage(chatId, {
-    id: pendingId,
+  // 2. Create loading agent message
+  const pendingRef = doc(collection(db, `chats/${chatId}/messages`));
+
+  await setDoc(pendingRef, {
     role: "agent",
-    content: "",
-    pending: true,
+    content: "...",
+    status: "loading",
+    sentAt: serverTimestamp(),
   });
 
-  fetchResponse(chatId, message, pendingId);
+  // 3. Fetch response
+  fetchResponse(chatId, message, pendingRef);
 
   return true;
 }
 
 /**
- * 🗑 Delete chat
+ * 🔁 Retry failed message
  */
-export function deleteChat(chatId: string) {
-  const chats = getChats();
-  delete chats[chatId];
-  saveChats(chats);
-  window.location.reload();
+export async function retryMessage(
+  chatId: string,
+  messageId: string,
+  originalMessage: string,
+) {
+  const messageRef = doc(db, `chats/${chatId}/messages/${messageId}`);
+
+  await updateDoc(messageRef, {
+    content: "...",
+    status: "loading",
+  });
+
+  fetchResponse(chatId, originalMessage, messageRef);
+}
+
+/**
+ * 🗑 Delete chat (soft delete)
+ */
+export async function deleteChat(chatId: string) {
+  await updateDoc(doc(db, "chats", chatId), {
+    deleted: true,
+  });
 }

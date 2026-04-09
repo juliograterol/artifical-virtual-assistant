@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 
 interface MessageProps {
   message?: any; // 👈 allow anything (we sanitize inside)
-  pending?: boolean;
+  status: "loading" | "sent" | "error";
 }
 
 function normalizeMessage(message: any): string {
@@ -23,11 +23,11 @@ function normalizeMessage(message: any): string {
 const Bubble = forwardRef<
   HTMLDivElement,
   {
-    message: string;
+    message: any;
     align?: "left" | "right";
-    pending?: boolean;
+    status?: "loading" | "sent" | "error";
   }
->(({ message, align = "left", pending = false }, ref) => {
+>(({ message, align = "left", status = "sent" }, ref) => {
   const safeMessage = normalizeMessage(message);
 
   return (
@@ -35,11 +35,11 @@ const Bubble = forwardRef<
       ref={ref}
       className={`message p-4 text-white rounded-2xl md:max-w-1/2 mb-4 md:mx-40 ${
         align === "left"
-          ? "rounded-tl-none bg-[#282828] self-start left sm:mr-40 mr-8"
-          : "rounded-tr-none bg-[#606060] self-end right sm:ml-40 ml-8"
+          ? "rounded-tl-none bg-[#282828] self-start sm:mr-40 mr-8"
+          : "rounded-tr-none bg-[#606060] self-end sm:ml-40 ml-8"
       }`}
     >
-      {pending ? (
+      {status === "loading" ? (
         <span className="flex gap-1 items-center opacity-70">
           <span className="w-1 h-1 bg-white rounded-full animate-bounce" />
           <span className="w-1 h-1 bg-white rounded-full animate-bounce delay-150" />
@@ -51,20 +51,17 @@ const Bubble = forwardRef<
     </div>
   );
 });
-
 Bubble.displayName = "Bubble";
 
 const UserMessage = forwardRef<HTMLDivElement, MessageProps>(
   ({ message = "" }, ref) => {
-    return <Bubble ref={ref} message={message} align="right" />;
+    return <Bubble ref={ref} message={message} align="right" status="sent" />;
   },
 );
 
 const AgentMessage = forwardRef<HTMLDivElement, MessageProps>(
-  ({ message = "", pending = false }, ref) => {
-    return (
-      <Bubble ref={ref} message={message} align="left" pending={pending} />
-    );
+  ({ message = "", status }, ref) => {
+    return <Bubble ref={ref} message={message} align="left" status={status} />;
   },
 );
 

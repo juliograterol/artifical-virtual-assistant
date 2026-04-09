@@ -1,8 +1,9 @@
 "use client";
 
+import { useUser } from "@/lib/useUser";
 import { useEffect, useState } from "react";
 
-export default function Hello({ name }: { name?: string }) {
+export default function Hello() {
   const message: string[] = [
     "How can I help you?",
     "What can I do for you today?",
@@ -31,11 +32,12 @@ export default function Hello({ name }: { name?: string }) {
 
     setRandomMessage(message[Math.floor(Math.random() * message.length)]);
   }, []);
+  const { data } = useUser();
 
   return (
     <div className="flex flex-col items-center gap-2">
       <h1 className="md:text-5xl text-4xl text-white text-center font-medium tracking-[-7.5%]">
-        {greeting}, {name !== "" ? name : "User"}
+        {greeting}, {data?.name ?? "User"}
       </h1>
       <p className="text-lg text-zinc-400 text-center">{randomMessage}</p>
     </div>

@@ -13,13 +13,16 @@ export default function History() {
   const [chats, setChats] = useState<Chat[]>([]);
 
   useEffect(() => {
-    const storedChats = getChats();
-
-    const list = Object.values(storedChats) as Chat[];
-
-    // Optional: sort newest first
-    list.sort((a, b) => b.createdAt - a.createdAt);
-    setChats(list);
+    const fetchChats = async () => {
+      try {
+        const storedChats = await getChats();
+        const list = Object.values(storedChats) as Chat[];
+        setChats(list);
+      } catch (e) {
+        console.log("Error fetching chats");
+      }
+    };
+    fetchChats();
   }, []);
 
   return (

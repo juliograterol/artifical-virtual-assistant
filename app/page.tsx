@@ -7,11 +7,9 @@ import { startNewChat } from "@/lib/chat-actions";
 import ChatInput from "@/component/chat/chat-input";
 import Discover from "@/component/discovery/discover-section";
 import { useIsMobile } from "@/lib/useMobile";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { useAuth } from "@/lib/useAuth";
 import { showAlert } from "@/lib/show-alert";
 import Login from "@/component/login";
+import { useUser } from "@/lib/useUser";
 
 export default function Home() {
   const router = useRouter();
@@ -19,30 +17,14 @@ export default function Home() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const isMobile = useIsMobile();
 
-  const [name, setName] = useState(""); // 👈 default empty
-
   useEffect(() => {
     if (headerRef.current) {
       setHeaderHeight(headerRef.current.offsetHeight);
     }
   }, []);
 
-  // 🔥 Fetch user name
-  const { user } = useAuth();
-
-  useEffect(() => {
-    const getUser = async () => {
-      if (!user) return;
-
-      const snap = await getDoc(doc(db, "users", user.uid));
-
-      if (snap.exists()) {
-        setName(snap.data().name ?? "");
-      }
-    };
-
-    getUser();
-  }, [user]);
+  // 🔥 Fetch user
+  const { data } = useUser();
 
   const newChat = async (m: string) => {
     const id = await startNewChat(m);
@@ -52,7 +34,7 @@ export default function Home() {
   };
 
   const startChat = async (message: string) => {
-    if (!user) {
+    if (!data) {
       await showAlert({
         form: <Login onLogin={async () => await newChat(message)} />,
       });
@@ -63,7 +45,7 @@ export default function Home() {
   return (
     <>
       <main className="h-full max-h-10/12 flex flex-col justify-center items-center w-full gap-4 text-white">
-        <Hello name={name} />
+        <Hello />
         <ChatInput onSend={startChat} />
       </main>
 

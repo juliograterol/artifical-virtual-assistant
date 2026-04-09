@@ -4,20 +4,23 @@ import Link from "next/link";
 import GlassElement from "@/component/glass-elemet/glass-element";
 import Options from "@/component/options";
 import { Chat } from "@/component/sidebar/history";
-import { getChat, getChats } from "@/lib/chat-storage";
+import { ChatSession, getChat, getChats } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
 
 export default function HistoryPage() {
   const [chats, setChats] = useState<Chat[]>([]);
 
   useEffect(() => {
-    const storedChats = getChats();
-
-    const list = Object.values(storedChats) as Chat[];
-
-    // Optional: sort newest first
-    list.sort((a, b) => b.createdAt - a.createdAt);
-    setChats(list);
+    const fetchChats = async () => {
+      try {
+        const storedChats = await getChats();
+        const list = Object.values(storedChats) as Chat[];
+        setChats(list);
+      } catch (e) {
+        console.log("Error fetching chats");
+      }
+    };
+    fetchChats();
   }, []);
 
   return (
@@ -30,15 +33,7 @@ export default function HistoryPage() {
         </header>
         <ul className="flex flex-col gap-2 w-full">
           {chats.map((chat) => {
-            const conversation = getChat(chat.id);
-
-            return (
-              <HistoryItem
-                key={chat.id}
-                chat={chat}
-                conversation={conversation}
-              />
-            );
+            return <HistoryItem key={chat.id} chat={chat} />;
           })}
         </ul>
       </section>
@@ -46,34 +41,54 @@ export default function HistoryPage() {
   );
 }
 
-const HistoryItem = ({
-  chat,
-  conversation,
-}: {
-  chat: Chat;
-  conversation: ReturnType<typeof getChat>;
-}) => {
+const HistoryItem = ({ chat }: { chat: Chat }) => {
   const { id, name, createdAt } = chat;
+  const [conversation, setConversation] = useState<ChatSession>();
 
-  const formatDate = (dateString: number | string) => {
-    const d = new Date(dateString);
+  const formatDate = (value: any) => {
+    let d: Date;
+    if (!value) return "";
+    // 🔥 Firestore Timestamp
+    if (typeof value === "object" && value.toDate) {
+      d = value.toDate();
+    } else if (typeof value === "number") {
+      d = new Date(value);
+    } else if (typeof value === "string") {
+      d = new Date(value);
+    } else {
+      return "";
+    }
+
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     const yy = String(d.getFullYear()).slice(-2);
     const hh = String(d.getHours()).padStart(2, "0");
     const min = String(d.getMinutes()).padStart(2, "0");
-    const date = `${mm}/${dd}/${yy}`;
-    const hour = `${hh}:${min}`;
 
-    return date + " " + hour;
+    return `${mm}/${dd}/${yy} ${hh}:${min}`;
   };
+
+  useEffect(() => {
+    const fetchConversation = async () => {
+      try {
+        const c = await getChat(chat.id);
+        console.log(c);
+        if (c) setConversation(c);
+      } catch (e) {
+        console.log("Error fetching conversation");
+      }
+    };
+    fetchConversation();
+  }, []);
 
   return (
     <li className="text-white group/item hover:bg-[#606060]/50 rounded-3xl">
       <GlassElement className="flex h-full">
         <Link href={`c/${chat.id}`} className="cursor-pointer w-full">
           <div className="flex justify-between pb-2 mb-2 border-b border-[#404040] overflow-auto">
-            <label>{name}</label>
+            <label className={name ?? "opacity-50"}>
+              {name ?? "Untitled Chat"}
+            </label>
             <p className="text-[#606060] max-md:text-xs">
               {formatDate(createdAt)}
             </p>
@@ -82,7 +97,7 @@ const HistoryItem = ({
             const content = {
               role: msg.role,
               message: msg.content,
-              ...(msg.pending !== undefined && { pending: msg.pending }),
+              ...(msg.status !== undefined && { status: msg.status }),
             };
             return (
               <p
@@ -90,9 +105,9 @@ const HistoryItem = ({
                 className="text-sm text-white opacity-50 line-clamp-1 ml-4 select-none"
               >
                 <strong className="font-medium">{content.role}: </strong>
-                {content.role === "user"
+                {typeof content.message === "string"
                   ? content.message
-                  : JSON.stringify(content.message)}
+                  : ((content.message as any)?.reply ?? "")}
               </p>
             );
           })}
