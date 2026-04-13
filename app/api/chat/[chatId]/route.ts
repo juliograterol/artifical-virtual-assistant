@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/firebase";
 import {
@@ -11,13 +11,10 @@ import {
 } from "firebase/firestore";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { chatId?: string } },
+  req: NextRequest,
+  context: { params: Promise<{ chatId: string }> },
 ) {
-  const url = new URL(req.url);
-  const fallbackId = url.pathname.split("/").pop();
-
-  const chatId = params?.chatId || fallbackId;
+  const { chatId } = await context.params;
 
   if (!chatId) {
     return NextResponse.json({ error: "Missing chatId" }, { status: 400 });
@@ -32,7 +29,7 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // 🔥 Get messages subcollection
+    // 🔥 Get messages
     const messagesQuery = query(
       collection(db, `chats/${chatId}/messages`),
       orderBy("sentAt", "asc"),
