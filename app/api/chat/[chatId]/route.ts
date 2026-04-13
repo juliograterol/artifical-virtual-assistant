@@ -1,4 +1,4 @@
-export const runtime = "nodejs";
+import { NextResponse } from "next/server";
 
 import { db } from "@/lib/firebase";
 import {
@@ -20,7 +20,7 @@ export async function GET(
   const chatId = params?.chatId || fallbackId;
 
   if (!chatId) {
-    return Response.json({ error: "Missing chatId" }, { status: 400 });
+    return NextResponse.json({ error: "Missing chatId" }, { status: 400 });
   }
 
   try {
@@ -29,7 +29,7 @@ export async function GET(
     const chatSnap = await getDoc(chatRef);
 
     if (!chatSnap.exists()) {
-      return Response.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     // 🔥 Get messages subcollection
@@ -45,7 +45,7 @@ export async function GET(
       ...(doc.data() as any),
     }));
 
-    return Response.json({
+    return NextResponse.json({
       id: chatSnap.id,
       ...chatSnap.data(),
       messages,
@@ -53,6 +53,9 @@ export async function GET(
   } catch (err) {
     console.error(err);
 
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
