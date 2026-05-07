@@ -1,0 +1,16 @@
+.new-message {
+  opacity: 0;
+  transform: translateY(-50%);
+  animation: newMessage 1s ease-in-out forwards;
+}
+
+@keyframes newMessage {
+  from {
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

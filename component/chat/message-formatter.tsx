@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo, useRef } from "react";
+import "./styles.css";
+import React, { useRef, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
+import remarkGfm from "remark-gfm";
 
 function parseInline(text: string) {
   const regex = /{{(.*?)}}/g;
@@ -32,14 +32,18 @@ function parseInline(text: string) {
   return parts;
 }
 
+type MsgProps = {};
+
 export default function MessageFormatter({
   message,
   editable,
   onChange,
+  isNew,
 }: {
   message: string;
   editable?: boolean;
   onChange?: (final: string, values: Record<string, string>) => void;
+  isNew?: boolean;
 }) {
   const valuesRef = useRef<Record<string, string>>({});
 
@@ -71,9 +75,46 @@ export default function MessageFormatter({
         </h3>
       ),
 
-      p: ({ children }) => {
+      p: ({ children, node }) => {
         if (!editable) {
-          return <p className="leading-relaxed mb-2">{children}</p>;
+          let wordIndex = 0;
+
+          const process = (child: any): any => {
+            // TEXT NODE → split into words
+            if (typeof child === "string") {
+              return child.split(" ").map((word: string, i: number) => {
+                const currentIndex = wordIndex++;
+
+                return (
+                  <span
+                    key={`word-${currentIndex}`}
+                    className={isNew ? "new-message inline-block" : ""}
+                    style={{
+                      animationDelay: isNew ? `${currentIndex * 0.03}s` : "0s",
+                    }}
+                  >
+                    {word}&nbsp;
+                  </span>
+                );
+              });
+            }
+
+            // ELEMENT NODE → recurse
+            if (child?.props?.children) {
+              return React.cloneElement(child, {
+                ...child.props,
+                children: React.Children.map(child.props.children, process),
+              });
+            }
+
+            return child;
+          };
+
+          return (
+            <p className="leading-relaxed mb-2">
+              {React.Children.map(children, process)}
+            </p>
+          );
         }
 
         const content = String(children ?? "");

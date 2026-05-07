@@ -36,7 +36,11 @@ const Modal = ({
         return msg.role === "user" ? (
           <C.UserMessage key={msg.id ?? `msg-${i}`} {...commonProps} />
         ) : (
-          <C.AgentMessage key={msg.id ?? `msg-${i}`} {...commonProps} />
+          <C.AgentMessage
+            key={msg.id ?? `msg-${i}`}
+            isNew={i === messages.length - 1}
+            {...commonProps}
+          />
         );
       })}
     </div>

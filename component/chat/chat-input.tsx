@@ -12,13 +12,19 @@ const ChatInput = ({
   onSend: (message: string) => Promise<void> | void;
 }) => {
   const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState<boolean>(false);
 
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    await onSend(message);
-
     setMessage("");
+    try {
+      setIsSending(true);
+      await onSend(message);
+    } catch (e) {
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -47,6 +53,7 @@ const ChatInput = ({
           <ActionButtons.SendButton
             onClick={handleSend}
             disabled={!message.trim()}
+            loading={isSending}
           />
         </div>
         {/* </div> */}

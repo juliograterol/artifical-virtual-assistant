@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 interface MessageProps {
   message?: any; // 👈 allow anything (we sanitize inside)
   status: "loading" | "sent" | "error";
+  isNew?: boolean;
 }
 
 function normalizeMessage(message: any): string {
@@ -26,8 +27,9 @@ const Bubble = forwardRef<
     message: any;
     align?: "left" | "right";
     status?: "loading" | "sent" | "error";
+    isNew?: boolean;
   }
->(({ message, align = "left", status = "sent" }, ref) => {
+>(({ message, align = "left", status = "sent", isNew }, ref) => {
   const safeMessage = normalizeMessage(message);
 
   return (
@@ -40,13 +42,40 @@ const Bubble = forwardRef<
       }`}
     >
       {status === "loading" ? (
-        <span className="flex gap-1 items-center opacity-70">
-          <span className="w-1 h-1 bg-white rounded-full animate-bounce" />
-          <span className="w-1 h-1 bg-white rounded-full animate-bounce delay-150" />
-          <span className="w-1 h-1 bg-white rounded-full animate-bounce delay-300" />
-        </span>
+        <svg
+          fill="white"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="4" cy="12" r="3">
+            <animate
+              id="spinner_jObz"
+              begin="0;spinner_vwSQ.end-0.25s"
+              attributeName="r"
+              dur="0.75s"
+              values="3;.2;3"
+            />
+          </circle>
+          <circle cx="12" cy="12" r="3">
+            <animate
+              begin="spinner_jObz.end-0.6s"
+              attributeName="r"
+              dur="0.75s"
+              values="3;.2;3"
+            />
+          </circle>
+          <circle cx="20" cy="12" r="3">
+            <animate
+              id="spinner_vwSQ"
+              begin="spinner_jObz.end-0.45s"
+              attributeName="r"
+              dur="0.75s"
+              values="3;.2;3"
+            />
+          </circle>
+        </svg>
       ) : (
-        <MessageFormatter message={safeMessage} />
+        <MessageFormatter message={safeMessage} isNew={isNew} />
       )}
     </div>
   );
@@ -60,8 +89,16 @@ const UserMessage = forwardRef<HTMLDivElement, MessageProps>(
 );
 
 const AgentMessage = forwardRef<HTMLDivElement, MessageProps>(
-  ({ message = "", status }, ref) => {
-    return <Bubble ref={ref} message={message} align="left" status={status} />;
+  ({ message = "", status, isNew }, ref) => {
+    return (
+      <Bubble
+        ref={ref}
+        message={message}
+        align="left"
+        status={status}
+        isNew={isNew}
+      />
+    );
   },
 );
 

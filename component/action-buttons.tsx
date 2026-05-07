@@ -66,9 +66,11 @@ const Attachment = () => {
 const SendButton = ({
   onClick,
   disabled,
+  loading,
 }: {
   onClick?: () => void;
   disabled?: boolean;
+  loading?: boolean;
 }) => {
   return (
     <button
@@ -77,15 +79,62 @@ const SendButton = ({
       className={`rounded-full p-2 cursor-pointer transition
         ${disabled ? "bg-[#404040] cursor-not-allowed" : "bg-[#606060] hover:bg-[#707070]"}`}
     >
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path
-          d="M5.50804 10.75L5.50804 0.75M5.50804 0.75L0.750061 4.42793M5.50804 0.75L10.7501 4.42793"
-          stroke="#1B1B1B"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {!loading ? (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path
+            d="M5.50804 10.75L5.50804 0.75M5.50804 0.75L0.750061 4.42793M5.50804 0.75L10.7501 4.42793"
+            stroke="#1B1B1B"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : (
+        <svg
+          stroke="white"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g>
+            <circle
+              cx="12"
+              cy="12"
+              r="9.5"
+              fill="none"
+              strokeWidth="3"
+              strokeLinecap="round"
+            >
+              <animate
+                attributeName="stroke-dasharray"
+                dur="1.5s"
+                calcMode="spline"
+                values="0 150;42 150;42 150;42 150"
+                keyTimes="0;0.475;0.95;1"
+                keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="stroke-dashoffset"
+                dur="1.5s"
+                calcMode="spline"
+                values="0;-16;-59;-59"
+                keyTimes="0;0.475;0.95;1"
+                keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+                repeatCount="indefinite"
+              />
+            </circle>
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              dur="2s"
+              values="0 12 12;360 12 12"
+              repeatCount="indefinite"
+            />
+          </g>
+        </svg>
+      )}
     </button>
   );
 };
