@@ -9,6 +9,7 @@ import {
   orderBy,
   serverTimestamp,
 } from "firebase/firestore";
+import { useAuth } from "./useAuth";
 
 export type Role = "user" | "agent";
 
@@ -26,13 +27,33 @@ export type ChatSession = {
 };
 
 // ✅ Get all chats
-export async function getChats() {
-  const snap = await getDocs(collection(db, "chats"));
+export async function getChats(uid: string) {
+  const userSnap = await getDoc(doc(db, "users", uid));
 
-  return snap.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  if (!userSnap.exists()) return [];
+
+  const userData = userSnap.data();
+
+  const chatRefs = userData.chats || [];
+
+  const chats = await Promise.all(
+    chatRefs.map(async (chatRef: any) => {
+      const chatSnap = await getDoc(chatRef);
+
+      if (!chatSnap.exists()) return null;
+
+      const data = chatSnap.data();
+
+      if (!data) return null;
+
+      return {
+        id: chatSnap.id,
+        ...data,
+      };
+    }),
+  );
+
+  return chats.filter(Boolean);
 }
 
 // ✅ Get single chat + messages

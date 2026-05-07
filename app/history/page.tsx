@@ -6,22 +6,12 @@ import Options from "@/component/options";
 import { Chat } from "@/component/sidebar/history";
 import { ChatSession, getChat, getChats } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
+import { useUserChats } from "@/lib/useUser";
 
 export default function HistoryPage() {
-  const [chats, setChats] = useState<Chat[]>([]);
+  const { data } = useUserChats();
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const storedChats = await getChats();
-        const list = Object.values(storedChats) as Chat[];
-        setChats(list);
-      } catch (e) {
-        console.log("Error fetching chats");
-      }
-    };
-    fetchChats();
-  }, []);
+  const chats = data as Chat[];
 
   return (
     <div className="w-full flex items-center justify-center">

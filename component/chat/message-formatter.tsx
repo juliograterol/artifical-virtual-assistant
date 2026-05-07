@@ -90,7 +90,7 @@ export default function MessageFormatter({
                     key={`word-${currentIndex}`}
                     className={isNew ? "new-message inline-block" : ""}
                     style={{
-                      animationDelay: isNew ? `${currentIndex * 0.03}s` : "0s",
+                      animationDelay: isNew ? `${currentIndex * 0.1}s` : "0s",
                     }}
                   >
                     {word}&nbsp;

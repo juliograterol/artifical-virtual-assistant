@@ -2,6 +2,7 @@ import { getChats } from "@/lib/chat-storage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Options from "../options";
+import { useUserChats } from "@/lib/useUser";
 
 export type Chat = {
   id: string;
@@ -10,20 +11,9 @@ export type Chat = {
 };
 
 export default function History() {
-  const [chats, setChats] = useState<Chat[]>([]);
+  const { data } = useUserChats();
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const storedChats = await getChats();
-        const list = Object.values(storedChats) as Chat[];
-        setChats(list);
-      } catch (e) {
-        console.log("Error fetching chats");
-      }
-    };
-    fetchChats();
-  }, []);
+  const chats = data as Chat[];
 
   return (
     <ul className="flex flex-col bg-[#1B1B1B] mx-4 rounded-xl items-center">
