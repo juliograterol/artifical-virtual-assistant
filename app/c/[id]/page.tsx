@@ -16,6 +16,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+import { useAuth } from "@/lib/useAuth";
 
 export type Message = {
   id: string;
@@ -91,8 +92,10 @@ export default function ChatPage() {
     });
   };
 
+  const { uid } = useAuth();
+
   const sendMessage = async (message: string) => {
-    await sendMessageToChat(chatId, message);
+    if (uid) await sendMessageToChat(uid, chatId, message);
   };
 
   return (

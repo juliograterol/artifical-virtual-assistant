@@ -9,7 +9,6 @@ import {
   orderBy,
   serverTimestamp,
 } from "firebase/firestore";
-import { useAuth } from "./useAuth";
 
 export type Role = "user" | "agent";
 

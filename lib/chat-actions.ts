@@ -9,6 +9,7 @@ import {
   serverTimestamp,
   setDoc,
   getDoc,
+  arrayUnion,
 } from "firebase/firestore";
 
 export type Message = {
@@ -24,6 +25,7 @@ const WEBHOOK_URL = "https://n8n.interactiveworkers.com/webhook/AVA";
  * 🔥 Fetch + update message status
  */
 async function fetchResponse(
+  uid: string,
   chatId: string,
   message: string,
   messageRef: ReturnType<typeof doc>,
@@ -34,7 +36,7 @@ async function fetchResponse(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message, chatId }),
+      body: JSON.stringify({ message, chatId, uid }),
     });
 
     const text = await res.text();
@@ -64,9 +66,7 @@ async function fetchResponse(
       const chatSnap = await getDoc(chatRef);
 
       if (chatSnap.exists()) {
-        const currentName = chatSnap.data()?.name;
-
-        if (currentName === "New Chat") {
+        if (payload.name === "New Chat") {
           await updateDoc(chatRef, {
             name: payload.name,
           });
@@ -86,7 +86,7 @@ async function fetchResponse(
 /**
  * 🚀 Start new chat
  */
-export async function startNewChat(message: string) {
+export async function startNewChat(uid: string, message: string) {
   if (!message.trim()) return null;
 
   // 1. Create chat
@@ -98,7 +98,14 @@ export async function startNewChat(message: string) {
 
   const chatId = chatRef.id;
 
-  // 2. Add user message
+  // 2. Add chat reference to user
+  const userRef = doc(db, "users", uid);
+
+  await updateDoc(userRef, {
+    chats: arrayUnion(chatRef),
+  });
+
+  // 3. Add user message
   await addDoc(collection(db, `chats/${chatId}/messages`), {
     role: "user",
     content: message,
@@ -106,7 +113,7 @@ export async function startNewChat(message: string) {
     sentAt: serverTimestamp(),
   });
 
-  // 3. Create loading agent message
+  // 4. Create loading agent message
   const pendingRef = doc(collection(db, `chats/${chatId}/messages`));
 
   await setDoc(pendingRef, {
@@ -116,16 +123,19 @@ export async function startNewChat(message: string) {
     sentAt: serverTimestamp(),
   });
 
-  // 4. Fetch response
-  fetchResponse(chatId, message, pendingRef);
+  // 5. Fetch AI response
+  fetchResponse(uid, chatId, message, pendingRef);
 
   return chatId;
 }
-
 /**
  * 💬 Send message
  */
-export async function sendMessageToChat(chatId: string, message: string) {
+export async function sendMessageToChat(
+  uid: string,
+  chatId: string,
+  message: string,
+) {
   if (!message.trim()) return null;
 
   // 1. User message
@@ -147,7 +157,7 @@ export async function sendMessageToChat(chatId: string, message: string) {
   });
 
   // 3. Fetch response
-  fetchResponse(chatId, message, pendingRef);
+  fetchResponse(uid, chatId, message, pendingRef);
 
   return true;
 }
@@ -156,6 +166,7 @@ export async function sendMessageToChat(chatId: string, message: string) {
  * 🔁 Retry failed message
  */
 export async function retryMessage(
+  uid: string,
   chatId: string,
   messageId: string,
   originalMessage: string,
@@ -167,7 +178,7 @@ export async function retryMessage(
     status: "loading",
   });
 
-  fetchResponse(chatId, originalMessage, messageRef);
+  fetchResponse(uid, chatId, originalMessage, messageRef);
 }
 
 /**

@@ -10,6 +10,7 @@ import { useIsMobile } from "@/lib/useMobile";
 import { showAlert } from "@/lib/show-alert";
 import Login from "@/component/login";
 import { useUser } from "@/lib/useUser";
+import { useAuth } from "@/lib/useAuth";
 
 export default function Home() {
   const router = useRouter();
@@ -25,9 +26,11 @@ export default function Home() {
 
   // 🔥 Fetch user
   const { data } = useUser();
+  const { uid } = useAuth();
 
   const newChat = async (m: string) => {
-    const id = await startNewChat(m);
+    if (!uid) return;
+    const id = await startNewChat(uid, m);
     if (id) {
       router.push(`/c/${id}`);
     }

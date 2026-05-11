@@ -2,6 +2,7 @@
 
 import MessageFormatter from "../chat/message-formatter";
 import { startNewChat } from "@/lib/chat-actions";
+import { useAuth } from "@/lib/useAuth";
 import { useState } from "react";
 
 export interface PromptProps {
@@ -18,14 +19,16 @@ export default function UsePrompt({
   onUse?: (id: string) => void;
 }) {
   const { title, description, prompt } = item;
+  const { uid } = useAuth();
   const [finalPrompt, setFinalPrompt] = useState(prompt);
   const [loading, setLoading] = useState<boolean>(false);
 
   async function usePrompt(e: React.FormEvent) {
     e.preventDefault();
+    if (!uid) return;
     setLoading(true);
 
-    const id = await startNewChat(finalPrompt);
+    const id = await startNewChat(uid, finalPrompt);
 
     if (id) {
       setLoading(false);
