@@ -12,7 +12,7 @@ import Login from "@/component/login";
 import { useUser } from "@/lib/useUser";
 import { useAuth } from "@/lib/useAuth";
 
-export default function Home() {
+export default function Home({ discover = true }: { discover?: boolean }) {
   const router = useRouter();
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -47,19 +47,23 @@ export default function Home() {
   };
   return (
     <>
-      <main className="h-full max-h-10/12 flex flex-col justify-center items-center w-full gap-4 text-white">
+      <main
+        className={`h-full max-h-10/12 ${!discover && "min-h-screen"} flex flex-col justify-center items-center w-full gap-4 text-white`}
+      >
         <Hello />
         <ChatInput onSend={startChat} />
       </main>
 
-      <div
-        className="w-full flex justify-center items-center text-white"
-        style={{
-          marginTop: !isMobile ? `-${headerHeight}px` : "0px",
-        }}
-      >
-        <Discover headerRef={headerRef} />
-      </div>
+      {discover && (
+        <div
+          className="w-full flex justify-center items-center text-white"
+          style={{
+            marginTop: !isMobile ? `-${headerHeight}px` : "0px",
+          }}
+        >
+          <Discover headerRef={headerRef} />
+        </div>
+      )}
     </>
   );
 }
