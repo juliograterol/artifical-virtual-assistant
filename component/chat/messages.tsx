@@ -44,6 +44,7 @@ const Bubble = forwardRef<
       {status === "loading" ? (
         <svg
           fill="white"
+          className="aspect-square min-h-4"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
