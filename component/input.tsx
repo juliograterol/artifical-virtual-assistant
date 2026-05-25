@@ -1,4 +1,8 @@
-type InputProps =
+type BasicInputProps = {
+  onChange: (value: any) => void;
+};
+
+type InputProps = (
   | {
       type?: "text";
       placeholder?: string;
@@ -7,7 +11,9 @@ type InputProps =
   | {
       type: "switch";
       label?: string;
-    };
+    }
+) &
+  BasicInputProps;
 
 export default function Input(props: InputProps) {
   switch (props.type) {
@@ -34,10 +40,15 @@ export default function Input(props: InputProps) {
     }
     // default or text
     default: {
-      const { placeholder } = props;
+      const { placeholder, value, onChange } = props;
       return (
         <div className="w-full p-4 border border-[#404040] rounded-2xl">
-          <input placeholder={placeholder} className="outline-0" />
+          <input
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            className="outline-0"
+          />
         </div>
       );
     }

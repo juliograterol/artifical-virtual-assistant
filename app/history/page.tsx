@@ -4,7 +4,7 @@ import Link from "next/link";
 import GlassElement from "@/component/glass-elemet/glass-element";
 import Options from "@/component/options";
 import { Chat } from "@/component/sidebar/history";
-import { ChatSession, getChat, getChats } from "@/lib/chat-storage";
+import { ChatSession, getChat } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
 import { useUserChats } from "@/lib/useUser";
 
@@ -15,7 +15,7 @@ export default function HistoryPage() {
 
   return (
     <div className="w-full flex items-center justify-center">
-      <section className="w-full md:max-w-8/12 md:p-10 px-4 flex flex-col min-h-screen items-center">
+      <section className="w-full md:p-10 px-4 flex flex-col min-h-screen items-center">
         <header className="w-full">
           <h2 className="text-4xl text-white text-center font-medium mb-4">
             History
@@ -71,39 +71,53 @@ const HistoryItem = ({ chat }: { chat: Chat }) => {
     fetchConversation();
   }, []);
 
-  return (
-    <li className="text-white group/item hover:bg-[#606060]/50 rounded-3xl">
-      <GlassElement className="flex h-full">
-        <Link href={`c/${chat.id}`} className="cursor-pointer w-full">
-          <div className="flex justify-between pb-2 mb-2 border-b border-[#404040] overflow-auto">
-            <label className={name ?? "opacity-50"}>
-              {name ?? "Untitled Chat"}
-            </label>
-            <p className="text-[#606060] max-md:text-xs">
-              {formatDate(createdAt)}
-            </p>
-          </div>
-          {conversation?.messages?.slice(-2).map((msg, i) => {
-            const content = {
-              role: msg.role,
-              message: msg.content,
-              ...(msg.status !== undefined && { status: msg.status }),
-            };
-            return (
-              <p
-                key={i}
-                className="text-sm text-white opacity-50 line-clamp-1 ml-4 select-none"
-              >
-                <strong className="font-medium">{content.role}: </strong>
-                {typeof content.message === "string"
-                  ? content.message
-                  : ((content.message as any)?.reply ?? "")}
-              </p>
-            );
-          })}
-        </Link>{" "}
+  const ItemWrapper = ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => {
+    return (
+      <div className="group/item cursor-pointer md:max-w-8/12 w-full text-white hover:bg-[#606060]/50 rounded-xl relative">
+        <GlassElement>
+          <Link href={href}>{children}</Link>
+        </GlassElement>
         <Options id={id} />
-      </GlassElement>
+      </div>
+    );
+  };
+
+  return (
+    <li className="relative flex w-full justify-center">
+      <ItemWrapper href={`c/${chat.id}`}>
+        <div className="text-white flex justify-between pb-2 mb-2 border-b border-[#404040] overflow-auto">
+          <label className={name ?? "opacity-50"}>
+            {name ?? "Untitled Chat"}
+          </label>
+          <p className="text-[#606060] max-md:text-xs">
+            {formatDate(createdAt)}
+          </p>
+        </div>
+        {conversation?.messages?.slice(-2).map((msg, i) => {
+          const content = {
+            role: msg.role,
+            message: msg.content,
+            ...(msg.status !== undefined && { status: msg.status }),
+          };
+          return (
+            <p
+              key={i}
+              className="text-sm text-white opacity-50 line-clamp-1 ml-4 select-none"
+            >
+              <strong className="font-medium">{content.role}: </strong>
+              {typeof content.message === "string"
+                ? content.message
+                : ((content.message as any)?.reply ?? "")}
+            </p>
+          );
+        })}
+      </ItemWrapper>
     </li>
   );
 };

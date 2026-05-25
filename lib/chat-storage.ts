@@ -8,6 +8,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 
 export type Role = "user" | "agent";
@@ -21,6 +22,7 @@ export type Message = {
 
 export type ChatSession = {
   id: string;
+  name?: string;
   createdAt: number;
   messages: Message[];
 };
@@ -76,6 +78,7 @@ export async function getChat(chatId: string): Promise<ChatSession | null> {
 
   return {
     id: chatId,
+    name: chatSnap.data().name ?? "",
     createdAt: chatSnap.data().createdAt?.toMillis?.() ?? Date.now(),
     messages,
   };
@@ -88,5 +91,19 @@ export async function addMessage(chatId: string, message: Omit<Message, "id">) {
   await addDoc(messagesRef, {
     ...message,
     sentAt: serverTimestamp(),
+  });
+}
+
+export async function changeName({
+  chatId,
+  name,
+}: {
+  chatId: string;
+  name: string;
+}) {
+  const chatRef = doc(db, "chats", chatId);
+
+  await updateDoc(chatRef, {
+    name,
   });
 }

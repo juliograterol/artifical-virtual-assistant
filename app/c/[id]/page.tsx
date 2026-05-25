@@ -14,9 +14,9 @@ import {
   orderBy,
   onSnapshot,
   doc,
-  updateDoc,
 } from "firebase/firestore";
 import { useAuth } from "@/lib/useAuth";
+import { changeName } from "@/lib/chat-storage";
 
 export type Message = {
   id: string;
@@ -87,9 +87,7 @@ export default function ChatPage() {
   const changeChatName = async (n: string) => {
     setName(n);
 
-    await updateDoc(doc(db, "chats", chatId), {
-      name: n,
-    });
+    await changeName({ chatId: chatId, name: n });
   };
 
   const { uid } = useAuth();

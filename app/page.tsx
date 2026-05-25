@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Hello from "@/component/hello";
 import { useRouter } from "next/navigation";
 import { startNewChat } from "@/lib/chat-actions";
@@ -8,7 +8,7 @@ import ChatInput from "@/component/chat/chat-input";
 import Discover from "@/component/discovery/discover-section";
 import { useIsMobile } from "@/lib/useMobile";
 import { showAlert } from "@/lib/show-alert";
-import Login from "@/component/login";
+import Login from "@/component/forms/login";
 import { useUser } from "@/lib/useUser";
 import { useAuth } from "@/lib/useAuth";
 

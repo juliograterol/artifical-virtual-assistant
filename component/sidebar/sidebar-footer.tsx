@@ -1,7 +1,7 @@
 import { showAlert } from "@/lib/show-alert";
 import { useUser } from "@/lib/useUser";
 import Link from "next/link";
-import Login from "../login";
+import Login from "../forms/login";
 
 export default function SidebarFooter({ isOpen }: { isOpen: boolean }) {
   const { data } = useUser();
