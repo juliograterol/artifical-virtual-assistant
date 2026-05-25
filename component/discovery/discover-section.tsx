@@ -31,7 +31,7 @@ export default function Discover({
   return (
     <section
       id={"prompt-templates"}
-      className="w-full md:max-w-8/12 md:p-10 px-4 flex flex-col min-h-screen items-center"
+      className="w-full xl:max-w-4/6 md:max-w-4/5 md:p-10 px-4 flex flex-col min-h-screen items-center"
     >
       <header ref={headerRef} className="w-full">
         <div className="flex w-full md:items-center justify-between mb-4 max-md:flex-col items-start">
@@ -50,7 +50,7 @@ export default function Discover({
         <DiscoverNav onChange={setTab} />
       </header>
 
-      <div className="py-8 w-full grid md:grid-cols-4 sm:grid-cols-2 gap-4">
+      <div className="py-8 w-full grid xl:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
         {filteredPrompts.map((prompt) => (
           <DiscoverItem key={prompt.title} {...prompt} />
         ))}

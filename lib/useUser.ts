@@ -7,7 +7,8 @@ import { db } from "./firebase";
 import { getChats } from "./chat-storage";
 import { Chat } from "@/component/sidebar/history";
 
-type UserData = {
+export type UserData = {
+  profilePicture?: string;
   name?: string;
   lastName?: string;
   email?: string;
