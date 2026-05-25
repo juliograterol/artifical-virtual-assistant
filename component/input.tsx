@@ -1,6 +1,6 @@
 type BasicInputProps = {
   id?: string;
-  onChange?: (value: any) => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
   required?: boolean;
 };
 

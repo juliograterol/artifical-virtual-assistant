@@ -7,17 +7,21 @@ import Button from "../button";
 type AppearanceSettingsData = {
   sidebarOpen: boolean;
   movingBackground: boolean;
+  chatAnimation: boolean;
+  glassEffect: boolean;
 };
 
 const STORAGE_KEY = "appearance-settings";
 
 export default function AppearanceSettings() {
   const [settings, setSettings] = useState<AppearanceSettingsData>({
-    sidebarOpen: true,
-    movingBackground: true,
+    sidebarOpen: false,
+    movingBackground: false,
+    chatAnimation: false,
+    glassEffect: false,
   });
 
-  // Load settings from localStorage
+  // Load saved settings
   useEffect(() => {
     const savedSettings = localStorage.getItem(STORAGE_KEY);
 
@@ -26,9 +30,10 @@ export default function AppearanceSettings() {
     }
   }, []);
 
-  function handleSave() {
+  // Save automatically
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }
+  }, [settings]);
 
   return (
     <section id="appearance">
@@ -40,7 +45,6 @@ export default function AppearanceSettings() {
         className="grid gap-4 md:w-1/2 sm:w-2/3"
         onSubmit={(e) => {
           e.preventDefault();
-          handleSave();
         }}
       >
         <Input
@@ -63,6 +67,28 @@ export default function AppearanceSettings() {
             setSettings((prev) => ({
               ...prev,
               movingBackground: e.target.checked,
+            }))
+          }
+        />
+        <Input
+          type="switch"
+          label="Chat Animation"
+          checked={settings.chatAnimation}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSettings((prev) => ({
+              ...prev,
+              chatAnimation: e.target.checked,
+            }))
+          }
+        />
+        <Input
+          type="switch"
+          label="Glass Effect"
+          checked={settings.glassEffect}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSettings((prev) => ({
+              ...prev,
+              glassEffect: e.target.checked,
             }))
           }
         />
