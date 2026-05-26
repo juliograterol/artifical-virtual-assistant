@@ -26,7 +26,7 @@ const Modal = ({
   return (
     <div
       ref={containerRef}
-      className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto chat-container relative"
+      className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto relative"
     >
       {messages.map((msg, i) => {
         const commonProps = {

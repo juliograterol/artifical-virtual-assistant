@@ -97,19 +97,22 @@ export default function ChatPage() {
   };
 
   return (
-    <section className="w-full h-screen flex flex-col justify-end items-center pb-4 px-4">
-      <GlassElement className="mt-4 absolute top-0 max-md:right-4 z-10 w-full md:max-w-3xl max-w-9/12">
-        <h1 className="text-white font-medium w-full flex justify-center">
-          <input
-            placeholder="Chat Name"
-            value={name}
-            onChange={(e) => changeChatName(e.target.value)}
-            className="px-2 w-full text-center outline-0"
-          />
-        </h1>
-      </GlassElement>
-
-      <Chat.Modal messages={messages} />
+    <section className="w-full h-screen flex flex-col justify-between items-center pb-4 px-4 relative">
+      <div className="sticky top-0 w-full flex justify-center">
+        <GlassElement className="mt-4 max-md:right-4 z-10 w-full md:max-w-3xl max-w-9/12">
+          <h1 className="text-white font-medium w-full flex justify-center">
+            <input
+              placeholder="Chat Name"
+              value={name}
+              onChange={(e) => changeChatName(e.target.value)}
+              className="px-2 w-full text-center outline-0"
+            />
+          </h1>
+        </GlassElement>
+      </div>
+      <div className="h-full w-full overflow-scroll chat-container">
+        <Chat.Modal messages={messages} />
+      </div>
       <ChatInput onSend={sendMessage} />
     </section>
   );

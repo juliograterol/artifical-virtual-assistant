@@ -1,5 +1,6 @@
 "use client";
 
+import { useSettings } from "@/lib/useSettings";
 import "./styles.css";
 import React, { useRef, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
@@ -55,11 +56,13 @@ export default function MessageFormatter({
     onChange?.(final, valuesRef.current);
   };
 
+  const { settings } = useSettings();
+
   const components: Components = useMemo(
     () => ({
       h1: ({ children }) => (
         <h1
-          className={`${isNew ? "new-message inline-block" : ""} text-2xl font-bold mt-4 mb-2 pt-2 border-t border-white/25`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} text-2xl font-bold mt-4 mb-2 pt-2 border-t border-white/25`}
         >
           {children}
         </h1>
@@ -67,7 +70,7 @@ export default function MessageFormatter({
 
       h2: ({ children }) => (
         <h2
-          className={`${isNew ? "new-message inline-block" : ""} text-xl font-semibold mt-3 mb-2 pt-2 border-t border-white/25`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} text-xl font-semibold mt-3 mb-2 pt-2 border-t border-white/25`}
         >
           {children}
         </h2>
@@ -75,7 +78,7 @@ export default function MessageFormatter({
 
       h3: ({ children }) => (
         <h3
-          className={`${isNew ? "new-message inline-block" : ""} text-lg font-semibold mt-2 mb-1 pt-2 border-t border-white/25`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} text-lg font-semibold mt-2 mb-1 pt-2 border-t border-white/25`}
         >
           {children}
         </h3>
@@ -94,9 +97,16 @@ export default function MessageFormatter({
                 return (
                   <span
                     key={`word-${currentIndex}`}
-                    className={isNew ? "new-message inline-block" : ""}
+                    className={
+                      isNew && settings.chatAnimation
+                        ? "new-message inline-block"
+                        : ""
+                    }
                     style={{
-                      animationDelay: isNew ? `${currentIndex * 0.1}s` : "0s",
+                      animationDelay:
+                        isNew && settings.chatAnimation
+                          ? `${currentIndex * 0.1}s`
+                          : "0s",
                     }}
                   >
                     {word}&nbsp;
@@ -118,7 +128,7 @@ export default function MessageFormatter({
 
           return (
             <p
-              className={`${isNew ? "new-message inline-block" : ""} leading-relaxed mb-2`}
+              className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} leading-relaxed mb-2`}
             >
               {React.Children.map(children, process)}
             </p>
@@ -130,7 +140,7 @@ export default function MessageFormatter({
 
         return (
           <p
-            className={`${isNew ? "new-message inline-block" : ""} leading-relaxed mb-2`}
+            className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} leading-relaxed mb-2`}
           >
             {parts.map((part, i) => {
               if (typeof part === "string") {
@@ -147,7 +157,7 @@ export default function MessageFormatter({
                     valuesRef.current[part.key] = e.target.value;
                   }}
                   onBlur={buildFinal} // optional: sync on blur
-                  className={`${isNew ? "new-message inline-block" : ""} border-b border-white/20 px-2 py-1 text-sm outline-none focus:border-white/50`}
+                  className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} border-b border-white/20 px-2 py-1 text-sm outline-none focus:border-white/50`}
                 />
               );
             })}
@@ -157,7 +167,7 @@ export default function MessageFormatter({
 
       ul: ({ children }) => (
         <ul
-          className={`${isNew ? "new-message inline-block" : ""} list-disc pl-6 mb-2`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} list-disc pl-6 mb-2`}
         >
           {children}
         </ul>
@@ -165,14 +175,16 @@ export default function MessageFormatter({
 
       ol: ({ children }) => (
         <ol
-          className={`${isNew ? "new-message inline-block" : ""} list-decimal pl-6 mb-2`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} list-decimal pl-6 mb-2`}
         >
           {children}
         </ol>
       ),
 
       li: ({ children }) => (
-        <li className={`${isNew ? "new-message inline-block" : ""} mb-2`}>
+        <li
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} mb-2`}
+        >
           {children}
         </li>
       ),
@@ -180,7 +192,7 @@ export default function MessageFormatter({
       code({ children }) {
         return (
           <code
-            className={`${isNew ? "new-message inline-block" : ""} bg-[#1e1e1e] px-1 py-0.5 rounded text-sm`}
+            className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} bg-[#1e1e1e] px-1 py-0.5 rounded text-sm`}
           >
             {children}
           </code>
@@ -191,7 +203,7 @@ export default function MessageFormatter({
         <a
           href={href}
           target="_blank"
-          className={`${isNew ? "new-message inline-block" : ""} text-blue-400 underline`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} text-blue-400 underline`}
         >
           {children}
         </a>
@@ -199,7 +211,7 @@ export default function MessageFormatter({
 
       blockquote: ({ children }) => (
         <blockquote
-          className={`${isNew ? "new-message inline-block" : ""} border-l-4 border-gray-500 pl-3 italic opacity-80 my-2`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} border-l-4 border-gray-500 pl-3 italic opacity-80 my-2`}
         >
           {children}
         </blockquote>
@@ -207,7 +219,7 @@ export default function MessageFormatter({
 
       table: ({ children }) => (
         <table
-          className={`${isNew ? "new-message inline-block" : ""} table-auto border-collapse my-3`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} table-auto border-collapse my-3`}
         >
           {children}
         </table>
@@ -215,7 +227,7 @@ export default function MessageFormatter({
 
       th: ({ children }) => (
         <th
-          className={`${isNew ? "new-message inline-block" : ""} border px-2 py-1 bg-[#333]`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} border px-2 py-1 bg-[#333]`}
         >
           {children}
         </th>
@@ -223,7 +235,7 @@ export default function MessageFormatter({
 
       td: ({ children }) => (
         <td
-          className={`${isNew ? "new-message inline-block" : ""} border px-2 py-1`}
+          className={`${isNew && settings.chatAnimation ? "new-message inline-block" : ""} border px-2 py-1`}
         >
           {children}
         </td>
