@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+"use client";
+
 import "./glass.css";
+import { useSettings } from "@/lib/useSettings";
 
 export default function GlassElement({
   children,
@@ -14,29 +16,16 @@ export default function GlassElement({
   theme?: "dark" | "light" | "shiny" | "medium" | "";
   style?: React.CSSProperties;
 }) {
-  const [glassEffect, setGlassEffect] = useState(true);
-
-  useEffect(() => {
-    const loadSettings = () => {
-      const settings = JSON.parse(
-        localStorage.getItem("appearance-settings") || "{}",
-      );
-
-      setGlassEffect(settings.glassEffect ?? true);
-    };
-
-    loadSettings();
-
-    window.addEventListener("storage", loadSettings);
-
-    return () => {
-      window.removeEventListener("storage", loadSettings);
-    };
-  }, []);
+  const { settings } = useSettings();
 
   return (
     <div
-      className={`${glassEffect ? "glass" : " p-2.5 bg-[#1B1B1B]"} ${theme} ${className} ${rounded ? "rounded-full" : ``}`}
+      className={`
+        ${settings.glassEffect ? "glass" : "p-2.5 bg-[#1B1B1B]"}
+        ${theme}
+        ${className}
+        ${rounded ? "rounded-full" : ""}
+      `}
       style={style}
     >
       {children}

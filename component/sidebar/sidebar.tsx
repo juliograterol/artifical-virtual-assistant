@@ -1,45 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import GlassElement from "../glass-elemet/glass-element";
+import SidebarNav from "./sidebar-nav";
 import SidebarToggle from "./sidebar-toggle";
 import SidebarHeader from "./sidebar-header";
-import SidebarNav from "./sidebar-nav";
 import SidebarFooter from "./sidebar-footer";
-import History from "./history";
+import GlassElement from "../glass-elemet/glass-element";
 import { useIsMobile } from "@/lib/useMobile";
+import { useSettings } from "@/lib/useSettings";
+import History from "./history";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { settings, setSettings } = useSettings();
   const isMobile = useIsMobile();
+
+  const path = usePathname();
+
+  if (path.includes("settings")) return;
 
   return (
     <aside
       className={`
         left-0 top-0 h-full w-full group z-60 text-white shadow-[0_0_50px_0_#00000025]
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-        ${isOpen ? `max-w-xs ${isMobile ? "fixed" : "relative"}` : isMobile ? "-translate-x-full fixed" : "max-w-20 absolute"}
+        ${settings.sidebarOpen ? `max-w-xs ${isMobile ? "fixed" : "relative"}` : isMobile ? "-translate-x-full fixed" : "max-w-20 absolute"}
       `}
     >
-      <SidebarToggle isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
+      <SidebarToggle
+        isOpen={settings.sidebarOpen}
+        onToggle={() =>
+          setSettings((prev) => ({
+            ...prev,
+            sidebarOpen: !settings.sidebarOpen,
+          }))
+        }
+      />
 
       <GlassElement
         className={`
           bg-[#282828] h-full flex flex-col justify-between
           transition-all duration-500
-          ${isOpen && "no-glass"}
+          ${settings.sidebarOpen && "no-glass"}
         `}
         style={{ borderRadius: 0 }}
       >
         <section>
-          <SidebarHeader isOpen={isOpen} />
+          <SidebarHeader isOpen={settings.sidebarOpen} />
 
           <div className="relative">
             <div
               className={`
                 transition-all duration-400
-                ${isOpen ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"}
+                ${settings.sidebarOpen ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"}
               `}
             >
               <History />
@@ -48,7 +61,7 @@ export default function Sidebar() {
             <div
               className={`
                 transition-all duration-400 flex justify-center cursor-pointer
-                ${!isOpen ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"}
+                ${!settings.sidebarOpen ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"}
               `}
             >
               <div className="bg-[#282828] w-min p-4 aspect-square rounded-2xl">
@@ -71,10 +84,10 @@ export default function Sidebar() {
             </div>
           </div>
 
-          <SidebarNav isOpen={isOpen} />
+          <SidebarNav isOpen={settings.sidebarOpen} />
         </section>
 
-        <SidebarFooter isOpen={isOpen} />
+        <SidebarFooter isOpen={settings.sidebarOpen} />
       </GlassElement>
     </aside>
   );

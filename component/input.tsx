@@ -2,6 +2,7 @@ type BasicInputProps = {
   id?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   required?: boolean;
+  disabled?: boolean;
 };
 
 type InputProps = (
@@ -20,7 +21,7 @@ type InputProps = (
   BasicInputProps;
 
 export default function Input(props: InputProps) {
-  const { required } = props;
+  const { required, disabled } = props;
 
   const Required = () => {
     if (required)
@@ -47,11 +48,12 @@ export default function Input(props: InputProps) {
                 id={id}
                 type="checkbox"
                 checked={checked}
+                disabled={disabled}
                 onChange={onChange}
-                className="peer absolute w-full h-full opacity-0 z-10 cursor-pointer"
+                className="peer absolute w-full h-full opacity-0 z-10 cursor-pointer disabled:cursor-not-allowed"
               />
               {/* ✅ track */}
-              <div className="absolute inset-0 rounded-full border border-[#404040] transition-all duration-200 peer-checked:border-[#606060] peer-checked:bg-[#606060]/50" />
+              <div className="absolute inset-0 rounded-full border border-[#404040] transition-all duration-200 peer-checked:border-[#606060] peer-checked:bg-[#606060]/50 peer-disabled:bg-[#404040] peer-disabled:opacity-50" />
               {/* ✅ thumb */}
               <div className="absolute top-1 left-1 h-7 w-7 rounded-full bg-[#404040] transition-all duration-200 peer-checked:bg-white peer-checked:translate-x-7 peer-active:scale-90" />
             </div>

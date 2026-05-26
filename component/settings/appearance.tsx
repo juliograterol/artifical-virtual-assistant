@@ -1,39 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Input from "../input";
 import Button from "../button";
-
-type AppearanceSettingsData = {
-  sidebarOpen: boolean;
-  movingBackground: boolean;
-  chatAnimation: boolean;
-  glassEffect: boolean;
-};
-
-const STORAGE_KEY = "appearance-settings";
+import { useSettings } from "@/lib/useSettings";
+import { Warning } from "../warning";
+import BackgroundSelector from "./background-selector";
 
 export default function AppearanceSettings() {
-  const [settings, setSettings] = useState<AppearanceSettingsData>({
-    sidebarOpen: false,
-    movingBackground: false,
-    chatAnimation: false,
-    glassEffect: false,
-  });
-
-  // Load saved settings
-  useEffect(() => {
-    const savedSettings = localStorage.getItem(STORAGE_KEY);
-
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-  }, []);
-
-  // Save automatically
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [settings]);
+  const { settings, setSettings } = useSettings();
 
   return (
     <section id="appearance">
@@ -42,7 +16,7 @@ export default function AppearanceSettings() {
       </div>
 
       <form
-        className="grid gap-4 md:w-1/2 sm:w-2/3"
+        className="grid gap-4"
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -62,7 +36,11 @@ export default function AppearanceSettings() {
         <Input
           type="switch"
           label="Moving Background"
-          checked={settings.movingBackground}
+          checked={
+            settings.background !== "none"
+              ? settings.background.animated
+              : false
+          }
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSettings((prev) => ({
               ...prev,
@@ -70,6 +48,7 @@ export default function AppearanceSettings() {
             }))
           }
         />
+        <BackgroundSelector />
         <Input
           type="switch"
           label="Chat Animation"
@@ -92,8 +71,13 @@ export default function AppearanceSettings() {
             }))
           }
         />
-        <Button type="submit">Save</Button>
+        <div className="md:w-1/2 sm:w-2/3">
+          <Button type="submit">Save</Button>
+        </div>
       </form>
+      <div className="flex py-4">
+        <Warning message="Give it a moment! If you don't see your changes, try giving the page a quick refresh." />
+      </div>
     </section>
   );
 }

@@ -87,11 +87,11 @@ export default function AccountSettings() {
       <form onSubmit={updateUserData}>
         <label className="font-medium text-xl">Personal Information</label>
         <div className="grid gap-4 w-full">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 max-md:flex-col">
             <div
               title="Change profile picture"
               onClick={() => fileInputRef.current?.click()}
-              className="relative h-full w-full max-w-50 max-h-50 aspect-square mt-2
+              className="relative h-full w-full max-w-50 max-h-50 aspect-square mt-2 group/profile-pic
                 rounded-full text-white hover:outline-10 outline-white overflow-visible"
             >
               <div className="bg-[#191919] w-full h-full text-[5rem] font-bold flex items-center justify-center rounded-full overflow-hidden ">
@@ -99,7 +99,7 @@ export default function AccountSettings() {
                   <>
                     <img
                       src={user.profilePicture}
-                      className="w-full h-full absolute top-0 left-0 rounded-full hover:outline-5 outline-[#282828] object-center object-cover"
+                      className="w-full h-full absolute top-0 left-0 rounded-full group-hover/profile-pic:outline-5 outline-[#282828] object-center object-cover"
                     />
                     <input
                       ref={fileInputRef}
@@ -162,7 +162,7 @@ export default function AccountSettings() {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex sm:gap-4 max-sm:flex-col">
           <Button type="submit" disabled={!hasChanges}>
             Save
           </Button>

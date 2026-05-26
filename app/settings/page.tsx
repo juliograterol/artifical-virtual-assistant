@@ -8,14 +8,17 @@ import MemorySettings from "@/component/settings/memory";
 export default function SettingsPage() {
   return (
     <div className="h-dvh flex flex-col">
-      <header className="w-ful py-4 flex justify-center bg-[#282828] border-b border-[#404040]">
+      <header className="w-full py-4 max-md:px-2 flex justify-center bg-[#282828] border-b border-[#404040]">
         <SearchInput value={""} onSearch={function (e: any): void {}} />
       </header>
-      <main className="w-full md:p-10 p-4 grid gap-4 text-white overflow-y-auto flex-1">
-        <AccountSettings />
-        <AppearanceSettings />
-        <MemorySettings />
-      </main>
+
+      <div className="flex-1 overflow-y-auto">
+        <main className="max-w-4xl mx-auto p-4 md:p-10 grid gap-8 text-white">
+          <AccountSettings />
+          <AppearanceSettings />
+          <MemorySettings />
+        </main>
+      </div>
     </div>
   );
 }

@@ -59,6 +59,20 @@ export default function MemorySettings() {
           {memoryPercentage}%
         </span>
       </div>
+      <ul className="py-4">
+        <li className="flex items-center gap-2">
+          <span className="w-4 h-4 bg-white" />
+          Chats
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="w-4 h-4 bg-white" />
+          Images
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="w-4 h-4 bg-white" />
+          Documents
+        </li>
+      </ul>
     </section>
   );
 }
