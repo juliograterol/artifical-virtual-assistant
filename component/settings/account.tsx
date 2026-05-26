@@ -79,7 +79,7 @@ export default function AccountSettings() {
   };
 
   return (
-    <section id="account-settings">
+    <section id="account">
       <div className="pb-2 mb-2 border-b border-[#404040]">
         <label className="text-2xl font-semibold">Account Settings</label>
       </div>
