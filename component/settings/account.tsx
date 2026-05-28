@@ -4,6 +4,7 @@ import Input from "../input";
 import Button from "../button";
 import { UserData, useUser } from "@/lib/useUser";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { useFormatDate } from "@/lib/useFormatDate";
 
 export default function AccountSettings() {
   const { data } = useUser();
@@ -25,6 +26,7 @@ export default function AccountSettings() {
         lastName: data.lastName || "",
         email: data.email || "",
         profilePicture: data.profilePicture || "",
+        createdAt: data.createdAt,
       });
     }
   }, [data]);
@@ -157,9 +159,13 @@ export default function AccountSettings() {
               placeholder="Email"
               value={user.email}
               example="user@interactiveworkers.com"
+              required
               onChange={handleUserData}
             />
           </div>
+          <p className="md:text-sm text-xs text-[#909090]">
+            Created at: {useFormatDate(user.createdAt)}
+          </p>
         </div>
 
         <div className="flex sm:gap-4 max-sm:flex-col">

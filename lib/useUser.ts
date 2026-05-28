@@ -2,7 +2,7 @@
 
 import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebase";
 import { getChats } from "./chat-storage";
 import { Chat } from "@/component/sidebar/history";
@@ -12,7 +12,7 @@ export type UserData = {
   name?: string;
   lastName?: string;
   email?: string;
-  createdAt?: Date;
+  createdAt?: Timestamp;
   chats?: any[];
   // add more fields based on your Firestore schema
 };

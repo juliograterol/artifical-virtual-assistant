@@ -72,20 +72,25 @@ export default function Input(props: InputProps) {
       const { id, value, placeholder, example, onChange } = props;
       return (
         <div className="w-full p-4 border border-[#404040] rounded-2xl relative flex ">
+          <input
+            id={id}
+            value={value}
+            title={
+              placeholder
+                ? `Fill this with a valid ${placeholder.toLocaleLowerCase()}.`
+                : "Fill this with valid data."
+            }
+            placeholder={example}
+            className={`peer outline-0 w-full ${value === "" && `focus:opacity-50 opacity-0`} z-10`}
+            onChange={onChange}
+            required={required}
+          />
           <span
-            className={`${value || example ? "-translate-y-full text-xs text-[#909090]" : "translate-y-0"} absolute transition-all duration-100`}
+            className={`${value && "-translate-y-full text-xs text-[#909090]"} ${example ? "peer-focus:-translate-y-full peer-focus:text-xs text-[#909090]" : "translate-y-0"} absolute transition-all duration-100`}
           >
             {placeholder}
             <Required />
           </span>
-          <input
-            id={id}
-            value={value}
-            placeholder={example}
-            className={`outline-0 w-full ${example && value === "" && "placeholder:opacity-50"}`}
-            onChange={onChange}
-            required={required}
-          />
         </div>
       );
     }
