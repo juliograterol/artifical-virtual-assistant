@@ -6,7 +6,7 @@ export default function Background() {
   const { settings } = useSettings();
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#1B1B1B]">
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-black">
       {settings.background !== "none" ? (
         settings.background.animated ? (
           <video

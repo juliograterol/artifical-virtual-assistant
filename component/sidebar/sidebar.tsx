@@ -22,7 +22,7 @@ export default function Sidebar() {
   return (
     <aside
       className={`
-        left-0 top-0 h-full w-full group z-60 text-white shadow-[0_0_50px_0_#00000025]
+        left-0 top-0 h-full w-full group z-60 text-white ${settings.glassEffect ? "shadow-[0_0_50px_0_#00000025]" : ""}
         transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
         ${settings.sidebarOpen ? `max-w-xs ${isMobile ? "fixed" : "relative"}` : isMobile ? "-translate-x-full fixed" : "max-w-20 absolute"}
       `}

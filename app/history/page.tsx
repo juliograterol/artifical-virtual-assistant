@@ -7,6 +7,7 @@ import { Chat } from "@/component/sidebar/history";
 import { ChatSession, getChat } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
 import { useUserChats } from "@/lib/useUser";
+import { useFormatDate } from "@/lib/useFormatDate";
 
 export default function HistoryPage() {
   const { data } = useUserChats();
@@ -34,29 +35,6 @@ export default function HistoryPage() {
 const HistoryItem = ({ chat }: { chat: Chat }) => {
   const { id, name, createdAt } = chat;
   const [conversation, setConversation] = useState<ChatSession>();
-
-  const formatDate = (value: any) => {
-    let d: Date;
-    if (!value) return "";
-    // 🔥 Firestore Timestamp
-    if (typeof value === "object" && value.toDate) {
-      d = value.toDate();
-    } else if (typeof value === "number") {
-      d = new Date(value);
-    } else if (typeof value === "string") {
-      d = new Date(value);
-    } else {
-      return "";
-    }
-
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const yy = String(d.getFullYear()).slice(-2);
-    const hh = String(d.getHours()).padStart(2, "0");
-    const min = String(d.getMinutes()).padStart(2, "0");
-
-    return `${mm}/${dd}/${yy} ${hh}:${min}`;
-  };
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -96,7 +74,7 @@ const HistoryItem = ({ chat }: { chat: Chat }) => {
             {name ?? "Untitled Chat"}
           </label>
           <p className="text-[#606060] max-md:text-xs">
-            {formatDate(createdAt)}
+            {useFormatDate(createdAt)}
           </p>
         </div>
         {conversation?.messages?.slice(-2).map((msg, i) => {

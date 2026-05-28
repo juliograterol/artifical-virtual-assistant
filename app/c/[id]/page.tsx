@@ -110,9 +110,7 @@ export default function ChatPage() {
           </h1>
         </GlassElement>
       </div>
-      <div className="h-full w-full overflow-scroll chat-container">
-        <Chat.Modal messages={messages} />
-      </div>
+      <Chat.Modal messages={messages} />
       <ChatInput onSend={sendMessage} />
     </section>
   );

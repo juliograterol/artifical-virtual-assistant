@@ -4,36 +4,71 @@ import { useEffect, useState } from "react";
 import AVA from "@/component/AVA";
 
 export default function AppLoader({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
-  const [loaded, setLoaded] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
+  const [hideLoader, setHideLoader] = useState(false);
+
+  useEffect(() => {
+    const alreadyVisited = sessionStorage.getItem("ava-loaded");
+
+    // only show full loader once per session
+    if (!alreadyVisited) {
+      setShowLoader(true);
+
+      // simulate initial app preparation
+      const timer = setTimeout(() => {
+        setHideLoader(true);
+
+        setTimeout(() => {
+          setShowLoader(false);
+          sessionStorage.setItem("ava-loaded", "true");
+        }, 700);
+      }, 2200);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   return (
     <>
-      {!loaded && (
+      {showLoader && (
         <div
-          className={`fixed inset-0 z-999 bg-[#1B1B1B] text-white flex items-center justify-center overflow-hidden 
-          transition-opacity duration-700 ${loading ? "opacity-100" : "opacity-0"}`}
+          className={`
+            fixed inset-0 z-[9999]
+            bg-[#1B1B1B]
+            flex items-center justify-center
+            transition-opacity duration-700
+            ${hideLoader ? "opacity-0" : "opacity-100"}
+          `}
         >
-          <AVA
-            onComplete={() => {
-              setLoading(false);
-              const timeout = setTimeout(() => {
-                setLoaded(true);
-              }, 700);
-              return () => clearTimeout(timeout);
-            }}
-          />
+          <div className="flex flex-col items-center gap-6">
+            <AVA />
+
+            <div className="flex flex-col items-center">
+              <span className="text-lg font-medium tracking-wide text-white">
+                Initializing AVA
+              </span>
+
+              <span className="text-sm text-white">
+                Preparing your workspace...
+              </span>
+            </div>
+
+            {/* subtle loading bar */}
+            <div className="w-56 h-1 rounded-full overflow-hidden bg-neutral-800">
+              <div className="h-full w-full animate-[loader_2s_ease-in-out_infinite] bg-white" />
+            </div>
+          </div>
         </div>
       )}
 
-      <div
+      <main
         className={`overflow-x-hidden w-full
           transition-opacity duration-700
-          ${loading ? "opacity-0" : "opacity-100"}
+          ${showLoader && !hideLoader ? "opacity-0" : "opacity-100"}
         `}
       >
         {children}
-      </div>
+      </main>
     </>
   );
 }

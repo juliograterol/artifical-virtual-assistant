@@ -9,6 +9,7 @@ import {
   orderBy,
   serverTimestamp,
   updateDoc,
+  Timestamp,
 } from "firebase/firestore";
 
 export type Role = "user" | "agent";
@@ -18,6 +19,7 @@ export type Message = {
   role: Role;
   content: string;
   status: "loading" | "sent" | "error";
+  sentAt?: Timestamp;
 };
 
 export type ChatSession = {
