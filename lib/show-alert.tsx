@@ -19,10 +19,14 @@ export function showAlert(options: AlertProps): Promise<boolean> {
       <Alert
         {...options}
         onCancel={() => {
+          options.onCancel?.();
+
           cleanup();
           resolve(false);
         }}
         onConfirm={() => {
+          options.onConfirm?.();
+
           cleanup();
           resolve(true);
         }}

@@ -5,6 +5,8 @@ import Button from "../button";
 import { UserData, useUser } from "@/lib/useUser";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { useFormatDate } from "@/lib/useFormatDate";
+import { logout } from "@/lib/auth-actions";
+import { showAlert } from "@/lib/show-alert";
 
 export default function AccountSettings() {
   const { data } = useUser();
@@ -173,7 +175,30 @@ export default function AccountSettings() {
             Save
           </Button>
 
-          <Button type="button" dark>
+          <Button
+            dark
+            onClick={async () => {
+              showAlert({
+                icon: "warning",
+                title: "Log Out?",
+                message: "Are you sure you want to sign out of your account?",
+                description:
+                  "You will need to log back in to access your chats.",
+                onConfirm: async () => {
+                  try {
+                    await logout();
+                    showAlert({
+                      title: "Logged Out!",
+                      message: "Hope to see you soon around.",
+                    });
+                  } catch (e) {
+                    console.log("Failed log out");
+                  } finally {
+                  }
+                },
+              });
+            }}
+          >
             Logout
           </Button>
         </div>

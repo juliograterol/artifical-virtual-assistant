@@ -1,8 +1,11 @@
+// lib/auth-actions.ts
+
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+
 import { auth, db } from "./firebase";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -14,7 +17,6 @@ export const register = async (
 ) => {
   const res = await createUserWithEmailAndPassword(auth, email, password);
 
-  // store user in Firestore
   await setDoc(doc(db, "users", res.user.uid), {
     name,
     email,
@@ -27,10 +29,17 @@ export const register = async (
 // ✅ Login
 export const login = async (email: string, password: string) => {
   const res = await signInWithEmailAndPassword(auth, email, password);
+
+  // 🍪 Simple auth cookie
+  document.cookie = "token=true; path=/; max-age=604800";
+
   return res.user;
 };
 
 // ✅ Logout
 export const logout = async () => {
+  // remove cookie
+  document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
   await signOut(auth);
 };

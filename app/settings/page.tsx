@@ -13,7 +13,7 @@ export default function SettingsPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <main className="max-w-4xl mx-auto p-4 md:p-10 grid gap-8 text-white">
+        <main className="md:max-w-6xl max-w-4xl mx-auto p-4 md:p-10 grid gap-8 text-white">
           <AccountSettings />
           <AppearanceSettings />
           <MemorySettings />

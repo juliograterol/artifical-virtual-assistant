@@ -2,6 +2,7 @@
 "use client";
 
 import AlertIcon from "./alert-icon";
+import Button from "./button";
 import GlassElement from "./glass-elemet/glass-element";
 import { useState } from "react";
 
@@ -65,12 +66,7 @@ export default function Alert({
               <p>{message}</p>
 
               <div className="flex gap-4 w-full justify-center font-semibold">
-                <button
-                  onClick={handleConfirm}
-                  className="text-black bg-white rounded px-4 py-2 cursor-pointer md:w-9/12 w-full"
-                >
-                  Continue
-                </button>
+                <Button onClick={handleConfirm}>Continue</Button>
               </div>
             </form>
           )}
