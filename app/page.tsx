@@ -11,6 +11,7 @@ import { showAlert } from "@/lib/show-alert";
 import Login from "@/component/forms/login";
 import { useUser } from "@/lib/useUser";
 import { useAuth } from "@/lib/useAuth";
+import Footer from "@/component/footer";
 
 export default function Home({ discover = true }: { discover?: boolean }) {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function Home({ discover = true }: { discover?: boolean }) {
           <Discover headerRef={headerRef} />
         </div>
       )}
+      <Footer />
     </>
   );
 }
