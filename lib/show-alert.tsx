@@ -1,7 +1,7 @@
 "use client";
 
 import { createRoot } from "react-dom/client";
-import Alert, { AlertProps } from "@/component/alert";
+import Alert, { AlertProps } from "@/components/alert";
 
 export function showAlert(options: AlertProps): Promise<boolean> {
   return new Promise((resolve) => {

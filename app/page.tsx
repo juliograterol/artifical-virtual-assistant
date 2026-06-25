@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Hello from "@/component/hello";
+import Hello from "@/components/hello";
 import { useRouter } from "next/navigation";
 import { startNewChat } from "@/lib/chat-actions";
-import ChatInput from "@/component/chat/chat-input";
-import Discover from "@/component/discovery/discover-section";
+import ChatInput from "@/components/chat/chat-input";
+import Discover from "@/components/discovery/discover-section";
 import { useIsMobile } from "@/lib/useMobile";
 import { showAlert } from "@/lib/show-alert";
-import Login from "@/component/forms/login";
+import Login from "@/components/forms/login";
 import { useUser } from "@/lib/useUser";
 import { useAuth } from "@/lib/useAuth";
-import Footer from "@/component/footer";
+import Footer from "@/components/footer";
 
 export default function Home({ discover = true }: { discover?: boolean }) {
   const router = useRouter();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SettingsSidebar from "@/component/settings/settings-sidebar";
+import SettingsSidebar from "@/components/settings/settings-sidebar";
 import { useIsMobile } from "@/lib/useMobile";
 
 export default function SettingsLayout({

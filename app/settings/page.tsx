@@ -1,9 +1,9 @@
 "use client";
 
-import SearchInput from "@/component/search-input";
-import AccountSettings from "@/component/settings/account";
-import AppearanceSettings from "@/component/settings/appearance";
-import MemorySettings from "@/component/settings/memory";
+import SearchInput from "@/components/search-input";
+import AccountSettings from "@/components/settings/account";
+import AppearanceSettings from "@/components/settings/appearance";
+import MemorySettings from "@/components/settings/memory";
 
 export default function SettingsPage() {
   return (

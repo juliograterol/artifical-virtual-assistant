@@ -1,9 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import Background from "@/component/bg";
+import Background from "@/components/bg";
 import { Montserrat } from "next/font/google";
-import Sidebar from "@/component/sidebar/sidebar";
-import AppLoader from "@/component/app-loader";
+import Sidebar from "@/components/sidebar/sidebar";
+import AppLoader from "@/components/app-loader";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 

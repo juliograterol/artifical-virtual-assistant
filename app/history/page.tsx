@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import GlassElement from "@/component/glass-elemet/glass-element";
-import Options from "@/component/options";
-import { Chat } from "@/component/sidebar/history";
+import GlassElement from "@/components/glass-elemet/glass-element";
+import Options from "@/components/options";
+import { Chat } from "@/components/sidebar/history";
 import { ChatSession, getChat } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
 import { useUserChats } from "@/lib/useUser";

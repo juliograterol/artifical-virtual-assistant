@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebase";
 import { getChats } from "./chat-storage";
-import { Chat } from "@/component/sidebar/history";
+import { Chat } from "@/components/sidebar/history";
 
 export type UserData = {
   profilePicture?: string;

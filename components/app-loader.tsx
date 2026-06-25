@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AVA from "@/component/AVA";
+import AVA from "@/components/AVA";
 
 export default function AppLoader({ children }: { children: React.ReactNode }) {
   const [showLoader, setShowLoader] = useState(false);

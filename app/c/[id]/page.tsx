@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Chat from "@/component/chat/modal";
-import ChatInput from "@/component/chat/chat-input";
+import Chat from "@/components/chat/modal";
+import ChatInput from "@/components/chat/chat-input";
 import { sendMessageToChat } from "@/lib/chat-actions";
-import GlassElement from "@/component/glass-elemet/glass-element";
+import GlassElement from "@/components/glass-elemet/glass-element";
 
 import { db } from "@/lib/firebase";
 import {
