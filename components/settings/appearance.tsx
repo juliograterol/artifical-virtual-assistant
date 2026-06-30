@@ -35,17 +35,24 @@ export default function AppearanceSettings() {
 
         <Input
           type="switch"
-          label="Moving Background"
+          label="Animated Background"
           checked={
             settings.background !== "none"
               ? settings.background.animated
               : false
           }
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSettings((prev) => ({
-              ...prev,
-              movingBackground: e.target.checked,
-            }))
+            setSettings((prev) => {
+              if (prev.background === "none") return prev;
+
+              return {
+                ...prev,
+                background: {
+                  ...prev.background,
+                  animated: e.target.checked,
+                },
+              };
+            })
           }
         />
         <BackgroundSelector />

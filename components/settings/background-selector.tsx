@@ -2,52 +2,36 @@
 
 import Image from "next/image";
 import { useSettings } from "@/lib/useSettings";
-
-const backgrounds = [
-  {
-    id: "image",
-    src: "/bg.png",
-    animated: false,
-    type: "image",
-  },
-  {
-    id: "video",
-    src: "/bg-loop.mp4",
-    animated: true,
-    type: "video",
-  },
-  {
-    id: "none",
-    value: "none",
-    type: "none",
-  },
-] as const;
+import { backgrounds } from "@/lib/backgrounds";
+import Silk from "../Silk";
+import Input from "../input";
 
 export default function BackgroundSelector() {
   const { settings, setSettings } = useSettings();
 
   return (
-    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
+    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-3">
       {backgrounds.map((bg) => {
         const isSelected =
           bg.type === "none"
             ? settings.background === "none"
             : settings.background !== "none" &&
-              settings.background.src === bg.src;
+              settings.background.id === bg.id;
+
+        const hasStatic = !!bg.variants?.static;
+        const hasAnimated = !!bg.variants?.animated;
+
+        const preview = bg.variants?.animated ?? bg.variants?.static;
 
         return (
           <label
             key={bg.id}
-            className={`
-              relative overflow-hidden rounded-2xl border-2 cursor-pointer transition-all
+            className={`relative overflow-hidden rounded-2xl border-2 cursor-pointer transition-all
               min-h-[20vh]
-              ${isSelected ? "border-white scale-[0.98]" : "border-[#404040]"}
-            `}
+              ${isSelected ? "border-white scale-[0.98]" : "border-[#404040]"}`}
           >
-            {/* hidden radio */}
             <input
               type="radio"
-              name="background"
               className="hidden"
               checked={isSelected}
               onChange={() => {
@@ -56,25 +40,39 @@ export default function BackgroundSelector() {
                     ...prev,
                     background: "none",
                   }));
-
                   return;
                 }
 
                 setSettings((prev) => ({
                   ...prev,
                   background: {
-                    src: bg.src,
-                    animated: bg.animated,
+                    id: bg.id,
+                    animated:
+                      prev.background !== "none"
+                        ? prev.background.animated
+                        : !!bg.variants?.animated,
                   },
                 }));
               }}
             />
 
-            {/* preview */}
-            {bg.type === "image" && (
+            {/* Preview */}
+
+            {bg.type === "image" && preview?.endsWith(".mp4") && (
+              <video
+                src={preview}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+
+            {bg.type === "image" && preview && !preview.endsWith(".mp4") && (
               <Image
-                src={bg.src}
-                alt="Background"
+                src={preview}
+                alt={bg.label}
                 fill
                 className="object-cover"
               />
@@ -82,31 +80,41 @@ export default function BackgroundSelector() {
 
             {bg.type === "video" && (
               <video
-                className="absolute inset-0 w-full h-full object-cover"
-                src={bg.src}
+                src={preview}
                 autoPlay
                 loop
                 muted
                 playsInline
+                className="absolute inset-0 w-full h-full object-cover"
               />
             )}
 
+            {bg.type === "silk" && (
+              <div className="absolute inset-0 w-full h-full">
+                <Silk
+                  speed={5}
+                  scale={1}
+                  color="#282828"
+                  noiseIntensity={1.5}
+                />
+              </div>
+            )}
+
             {bg.type === "none" && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#1B1B1B]">
+              <div className="absolute inset-0 flex items-center justify-center bg-[#1b1b1b]">
                 None
               </div>
             )}
 
-            {/* selection indicator */}
+            {/* Selection */}
+
             <div
-              className={`
-                absolute top-2 right-2 w-5 h-5 rounded-full border
+              className={`absolute top-2 right-2 w-5 h-5 rounded-full border
                 ${
                   isSelected
                     ? "bg-white border-white"
                     : "bg-black/50 border-white/50"
-                }
-              `}
+                }`}
             />
           </label>
         );

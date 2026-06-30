@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 
+export type BackgroundSettings =
+  | "none"
+  | {
+      id: string;
+      animated: boolean;
+    };
+
 export type AppearanceSettingsData = {
   sidebarOpen: boolean;
-  background: { src: string; animated: boolean } | "none";
+  background: BackgroundSettings;
   chatAnimation: boolean;
   glassEffect: boolean;
 };
@@ -13,10 +20,49 @@ export const STORAGE_KEY = "appearance-settings";
 
 export const DEFAULT_SETTINGS: AppearanceSettingsData = {
   sidebarOpen: false,
-  background: { src: "/bg-loop.mp4", animated: true },
+  background: {
+    id: "default",
+    animated: true,
+  },
   chatAnimation: true,
   glassEffect: true,
 };
+
+/**
+ * Converts old saved backgrounds ({ src, animated })
+ * into the new ({ id, animated }) format.
+ */
+function migrateBackground(background: any): BackgroundSettings {
+  if (!background) {
+    return DEFAULT_SETTINGS.background;
+  }
+
+  if (background === "none") {
+    return "none";
+  }
+
+  // Already using the new format
+  if ("id" in background) {
+    return background;
+  }
+
+  // Old format -> new format
+  if ("src" in background) {
+    switch (background.src) {
+      case "/bg.png":
+      case "/bg-loop.mp4":
+        return {
+          id: "default",
+          animated: background.animated,
+        };
+
+      default:
+        return DEFAULT_SETTINGS.background;
+    }
+  }
+
+  return DEFAULT_SETTINGS.background;
+}
 
 export function getSettings(): AppearanceSettingsData {
   if (typeof window === "undefined") {
@@ -28,9 +74,12 @@ export function getSettings(): AppearanceSettingsData {
 
     if (!stored) return DEFAULT_SETTINGS;
 
+    const parsed = JSON.parse(stored);
+
     return {
       ...DEFAULT_SETTINGS,
-      ...JSON.parse(stored),
+      ...parsed,
+      background: migrateBackground(parsed.background),
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -42,7 +91,6 @@ export function saveSettings(settings: AppearanceSettingsData) {
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 
-  // trigger same-tab updates
   window.dispatchEvent(new Event("appearance-settings-update"));
 }
 
@@ -57,15 +105,11 @@ export function useSettings() {
 
     loadSettings();
 
-    // other tabs
     window.addEventListener("storage", loadSettings);
-
-    // same tab
     window.addEventListener("appearance-settings-update", loadSettings);
 
     return () => {
       window.removeEventListener("storage", loadSettings);
-
       window.removeEventListener("appearance-settings-update", loadSettings);
     };
   }, []);
