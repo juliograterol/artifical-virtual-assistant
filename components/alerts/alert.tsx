@@ -2,8 +2,8 @@
 "use client";
 
 import AlertIcon from "./alert-icon";
-import Button from "./button";
-import GlassElement from "./glass-elemet/glass-element";
+import Button from "../button";
+import GlassElement from "../glass-elemet/glass-element";
 import { useState } from "react";
 
 export type AlertProps = {

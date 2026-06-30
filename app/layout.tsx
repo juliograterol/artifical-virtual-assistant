@@ -1,9 +1,12 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Background from "@/components/bg";
-import { Montserrat } from "next/font/google";
+import { Montserrat, Geist } from "next/font/google";
 import Sidebar from "@/components/sidebar/sidebar";
 import AppLoader from "@/components/app-loader";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -19,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", geist.variable)}>
       <body
         className={`${montserrat.className} antialiased bg-[#1B1B1B] flex flex-col`}
       >
