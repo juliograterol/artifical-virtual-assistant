@@ -4,12 +4,20 @@ import { useState } from "react";
 import ActionButtons from "../action-buttons";
 import GlassElement from "../glass-elemet/glass-element";
 import { Warning } from "../warning";
+import TextType from "../TextType";
 
 const ChatInput = ({
-  placeholder = "Reply to AVA...",
+  placeholder = [
+    "Reply to AVA...",
+    "Ask AVA anything.",
+    "Generate a marketing strategy for...",
+    "Draft a professional email...",
+    "Scrap 10 leads located in the United States...",
+    "Schedule a meeting with...",
+  ],
   onSend,
 }: {
-  placeholder?: string;
+  placeholder?: string | string[];
   onSend: (message: string) => Promise<void> | void;
 }) => {
   const [message, setMessage] = useState("");
@@ -36,12 +44,14 @@ const ChatInput = ({
   };
 
   return (
-    <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl max-md:px-4">
+    <div className="text-white w-full flex flex-col text-center gap-5 max-w-3xl max-md:px-4 relative">
       <GlassElement>
         {/* <div className="bg-[#282828] rounded-[25px] p-6 w-full"> */}
+        {!message && (
+          <TextType text={placeholder} className="absolute opacity-50" />
+        )}
         <textarea
           className="outline-0 w-full resize-none"
-          placeholder={placeholder}
           rows={4}
           value={message}
           onChange={(e) => setMessage(e.target.value)}

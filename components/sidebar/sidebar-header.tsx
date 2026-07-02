@@ -1,15 +1,23 @@
 import Link from "next/link";
 import GlassElement from "../glass-elemet/glass-element";
+import Image from "next/image";
 
 export default function SidebarHeader({ isOpen }: { isOpen: boolean }) {
   return (
-    <div className={`flex items-center gap-2 ${isOpen ? "p-4" : "mb-2"}`}>
+    <div className={`flex items-center gap-2 ${isOpen ? "p-4" : "m-2"}`}>
       <GlassElement
-        className={`aspect-square transition-all active:scale-95 ${isOpen ? "w-1/2" : "w-full"}`}
+        className={`aspect-square transition-all active:scale-95 ${isOpen ? "w-1/2" : "w-full"} object-contain`}
         rounded={25}
       >
-        <Link href="/" className="h-full flex justify-center">
-          <svg
+        <Link href="/" className={`h-full flex justify-center`}>
+          <Image
+            src={"/ava-logo.png"}
+            width={1080}
+            height={1080}
+            alt="AVA"
+            className="object-contain"
+          />
+          {/* <svg
             viewBox="0 -12 316 140"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +31,7 @@ export default function SidebarHeader({ isOpen }: { isOpen: boolean }) {
               d="M204.609 71.0296H293.677V59.9204C293.677 39.2429 277.036 22.4663 256.49 22.4663H239.02V0L237.519 3.11169L228.134 22.4739L204.609 71.0371V71.0296ZM239.02 93.5035H193.732L182.839 115.985H158L168.893 93.5035L179.778 71.0371L203.303 22.4739L214.203 0.00743195H256.49C270.548 0.00743195 283.479 4.92322 293.677 13.1536C297.089 15.9121 300.195 19.0389 302.942 22.4814C311.117 32.7412 316 45.7671 316 59.9355V116H293.685V93.5185H240.065H239.027L239.02 93.5035Z"
               fill="white"
             />
-          </svg>
+          </svg> */}
         </Link>
       </GlassElement>
 

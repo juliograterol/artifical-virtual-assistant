@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import GlassElement from "../glass-elemet/glass-element";
 import { useIsMobile } from "@/lib/useMobile";
 import { prompts, type PromptTab } from "./prompts";
+import GlassSurface from "../GlassSurface";
 
 export default function DiscoverNav({
   onChange,
@@ -95,6 +96,19 @@ export default function DiscoverNav({
     >
       <GlassElement
         className={`absolute transition-all mx-2 z-10 ${isPointerDown && isMobile ? "duration-0" : "duration-300"}`}
+        borderRadius={100}
+        width={style.width}
+        height={"80%"}
+        style={{
+          margin: "0 8px",
+          left: `${style.x}px`,
+          transition: isPointerDown && isMobile ? "all 0ms" : "all 300ms",
+          position: "absolute",
+          zIndex: 1,
+        }}
+      />
+      {/* <GlassElement
+        className={`absolute transition-all mx-2 z-10 ${isPointerDown && isMobile ? "duration-0" : "duration-300"}`}
         theme="medium"
         rounded
         style={{
@@ -102,7 +116,7 @@ export default function DiscoverNav({
           width: style.width,
           height: "80%",
         }}
-      />
+      /> */}
 
       <ul
         ref={containerRef}

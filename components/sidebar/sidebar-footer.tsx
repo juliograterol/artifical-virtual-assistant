@@ -11,7 +11,7 @@ export default function SidebarFooter({ isOpen }: { isOpen: boolean }) {
   console.log(profilePicture);
 
   return (
-    <section>
+    <section id="sidebar-footer">
       <div className="h-px bg-[#606060] w-10/12 m-[0_auto]" />
       <Link
         onClick={async (e) => {
