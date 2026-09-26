@@ -23,10 +23,10 @@ export default function Footer() {
             @gabocarrion
           </Link>
         </p>
-        <p className="text-sm cursor-default active:cursor-text text-center">
+        {/* <p className="text-sm cursor-default active:cursor-text text-center">
           ©Copyright 2006 - 2024 Interactiveworkers.
           <br className="md:hidden" /> All Rights Reserved
-        </p>
+        </p> */}
       </div>
     </footer>
   );
