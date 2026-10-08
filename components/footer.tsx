@@ -23,14 +23,6 @@ export default function Footer() {
             @gabocarrion
           </Link>
         </p>
-<<<<<<< HEAD
-        <p className="md:text-sm text-xs cursor-default active:cursor-text text-center">
-=======
-        {/* <p className="text-sm cursor-default active:cursor-text text-center">
->>>>>>> e397750d230d1e5924a20c043b826274b423f583
-          ©Copyright 2006 - 2024 Interactiveworkers.
-          <br className="md:hidden" /> All Rights Reserved
-        </p> */}
       </div>
     </footer>
   );
