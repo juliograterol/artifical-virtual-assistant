@@ -4,9 +4,9 @@ import Link from "next/link";
 import GlassElement from "@/components/glass-elemet/glass-element";
 import Options from "@/components/options";
 import { Chat } from "@/components/sidebar/history";
-import { ChatSession, getChat } from "@/lib/chat-storage";
-import { useEffect, useState } from "react";
-import { useUser, useUserChats } from "@/lib/useUser";
+import { useUser } from "@/lib/useUser";
+import { useAuth } from "@/lib/useAuth";
+import { useChats } from "@/lib/useChats";
 import { useFormatDate } from "@/lib/useFormatDate";
 import Login from "@/components/forms/login";
 import Button from "@/components/button";
@@ -18,7 +18,8 @@ import Footer from "@/components/footer";
 export default function HistoryPage() {
   const router = useRouter();
   const user = useUser();
-  const { data } = useUserChats();
+  const { uid } = useAuth();
+  const { data } = useChats(uid);
 
   const chats = data as Chat[];
 
@@ -86,21 +87,8 @@ export default function HistoryPage() {
 }
 
 const HistoryItem = ({ chat }: { chat: Chat }) => {
-  const { id, name, createdAt } = chat;
-  const [conversation, setConversation] = useState<ChatSession>();
-
-  useEffect(() => {
-    const fetchConversation = async () => {
-      try {
-        const c = await getChat(chat.id);
-        console.log(c);
-        if (c) setConversation(c);
-      } catch (e) {
-        console.log("Error fetching conversation");
-      }
-    };
-    fetchConversation();
-  }, []);
+  // ✅ preview is stored on the chat doc: no per-item message reads
+  const { id, name, createdAt, lastMessage } = chat;
 
   const ItemWrapper = ({
     children,
@@ -130,24 +118,12 @@ const HistoryItem = ({ chat }: { chat: Chat }) => {
             {useFormatDate(createdAt)}
           </p>
         </div>
-        {conversation?.messages?.slice(-2).map((msg, i) => {
-          const content = {
-            role: msg.role,
-            message: msg.content,
-            ...(msg.status !== undefined && { status: msg.status }),
-          };
-          return (
-            <p
-              key={i}
-              className="text-sm text-white opacity-50 line-clamp-1 ml-4 select-none"
-            >
-              <strong className="font-medium">{content.role}: </strong>
-              {typeof content.message === "string"
-                ? content.message
-                : ((content.message as any)?.reply ?? "")}
-            </p>
-          );
-        })}
+        {lastMessage && (
+          <p className="text-sm text-white opacity-50 line-clamp-1 ml-4 select-none">
+            <strong className="font-medium">{lastMessage.role}: </strong>
+            {lastMessage.preview}
+          </p>
+        )}
       </ItemWrapper>
     </li>
   );

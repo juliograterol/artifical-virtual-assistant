@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /chats/{chatId} {
+      function chatPath() {
+        return /databases/$(database)/documents/chats/$(chatId);
+      }
+
+      // resource == null lets the chat page attach its listener before the
+      // creating batch reaches the server (we navigate before the commit)
+      allow get: if signedIn()
+        && (resource == null || resource.data.ownerId == request.auth.uid);
+
+      // Rules are not filters: list queries must include where("ownerId", "==", uid)
+      allow list: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.deleted == false
+        && request.resource.data.name is string;
+
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'deleted', 'updatedAt', 'lastMessage']);
+
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        // Same reasoning as chat `get`: the chat may not exist on the server yet
+        allow read: if signedIn()
+          && (!exists(chatPath()) || get(chatPath()).data.ownerId == request.auth.uid);
+
+        // getAfter: the chat may be created in the same batch
+        allow create: if signedIn()
+          && getAfter(chatPath()).data.ownerId == request.auth.uid
+          && getAfter(chatPath()).data.deleted == false
+          && request.resource.data.keys().hasOnly(['role', 'content', 'status', 'sentAt', 'clientTs'])
+          && request.resource.data.sentAt == request.time
+          && request.resource.data.clientTs is int
+          && (
+            (request.resource.data.role == 'user'
+              && request.resource.data.status == 'sent'
+              && request.resource.data.content is string
+              && request.resource.data.content.size() <= 32000)
+            ||
+            // agent placeholder only; the reply itself is written by the Admin SDK
+            (request.resource.data.role == 'agent'
+              && request.resource.data.status == 'loading'
+              && request.resource.data.content == '')
+          );
+
+        // Only lets the client fail a reply the server never accepted.
+        // Keep the text in sync with REPLY_FAILED in lib/chat-actions.ts and lib/n8n.ts
+        allow update: if signedIn()
+          && get(chatPath()).data.ownerId == request.auth.uid
+          && resource.data.role == 'agent'
+          && resource.data.status == 'loading'
+          && request.resource.data.status == 'error'
+          && request.resource.data.content == 'Failed to get a response. Please try again.'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'content']);
+
+        allow delete: if false;
+      }
+    }
+  }
+}

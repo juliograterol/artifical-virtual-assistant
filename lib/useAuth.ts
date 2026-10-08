@@ -9,10 +9,9 @@ export const useAuth = () => {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
-      if (u) {
-        setUid(u.uid);
-        setUser(u);
-      }
+      // ✅ clear on logout too
+      setUid(u?.uid);
+      setUser(u);
       setLoading(false);
     });
 

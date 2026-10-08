@@ -4,8 +4,6 @@ import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebase";
-import { getChats } from "./chat-storage";
-import { Chat } from "@/components/sidebar/history";
 
 export type UserData = {
   profilePicture?: string;
@@ -13,7 +11,6 @@ export type UserData = {
   lastName?: string;
   email?: string;
   createdAt?: Timestamp;
-  chats?: any[];
   // add more fields based on your Firestore schema
 };
 
@@ -40,10 +37,11 @@ export const useUser = () => {
         if (snap.exists()) {
           setData(snap.data() as UserData);
         } else {
+          console.warn(`No users/${user.uid} document: the app treats this as logged out`);
           setData(null);
         }
       } catch (err) {
-        console.error(err);
+        console.error(`Failed to read users/${user.uid}:`, err);
         setError("Failed to fetch user");
       } finally {
         setLoading(false);
@@ -54,31 +52,4 @@ export const useUser = () => {
   }, [user?.uid]); // 👈 important: avoid unnecessary reruns
 
   return { data, loading, error };
-};
-
-export const useUserChats = () => {
-  const [data, setData] = useState<Chat[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const { uid } = useAuth();
-
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        if (!uid) return;
-
-        const chats = await getChats(uid);
-
-        setData(chats as Chat[]);
-      } catch (e) {
-        console.log("Error fetching chats:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchChats();
-  }, [uid]);
-
-  return { data, loading };
 };

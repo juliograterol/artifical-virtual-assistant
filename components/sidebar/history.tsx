@@ -1,17 +1,22 @@
-import { getChats } from "@/lib/chat-storage";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Timestamp } from "firebase/firestore";
 import Options from "../options";
-import { useUserChats } from "@/lib/useUser";
+import { useAuth } from "@/lib/useAuth";
+import { useChats } from "@/lib/useChats";
 
 export type Chat = {
   id: string;
   name: string;
-  createdAt: number;
+  ownerId: string;
+  deleted: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  lastMessage?: { role: "user" | "agent"; preview: string };
 };
 
 export default function History() {
-  const { data } = useUserChats();
+  const { uid } = useAuth();
+  const { data } = useChats(uid);
 
   const chats = data as Chat[];
 

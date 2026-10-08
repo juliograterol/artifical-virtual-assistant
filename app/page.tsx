@@ -10,7 +10,6 @@ import { useIsMobile } from "@/lib/useMobile";
 import { showAlert } from "@/lib/show-alert";
 import Login from "@/components/forms/login";
 import { useUser } from "@/lib/useUser";
-import { useAuth } from "@/lib/useAuth";
 import Footer from "@/components/footer";
 
 export default function Home({ discover = true }: { discover?: boolean }) {
@@ -27,14 +26,14 @@ export default function Home({ discover = true }: { discover?: boolean }) {
 
   // 🔥 Fetch user
   const { data } = useUser();
-  const { uid } = useAuth();
 
   const newChat = async (m: string) => {
-    if (!uid) return;
-    const id = await startNewChat(uid, m);
-    if (id) {
-      router.push(`/c/${id}`);
-    }
+    const chat = startNewChat(m);
+    if (!chat) return;
+
+    // ✅ navigate before the commit; the chat page renders the local writes
+    router.push(`/c/${chat.chatId}`);
+    await chat.done;
   };
 
   const startChat = async (message: string) => {

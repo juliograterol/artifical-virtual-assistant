@@ -1,16 +1,5 @@
 import { db } from "./firebase";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  query,
-  orderBy,
-  serverTimestamp,
-  updateDoc,
-  Timestamp,
-} from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 
 export type Role = "user" | "agent";
 
@@ -22,78 +11,16 @@ export type Message = {
   sentAt?: Timestamp;
 };
 
-export type ChatSession = {
-  id: string;
-  name?: string;
-  createdAt: number;
-  messages: Message[];
-};
-
-// ✅ Get all chats
-export async function getChats(uid: string) {
-  const userSnap = await getDoc(doc(db, "users", uid));
-
-  if (!userSnap.exists()) return [];
-
-  const userData = userSnap.data();
-
-  const chatRefs = userData.chats || [];
-
-  const chats = await Promise.all(
-    chatRefs.map(async (chatRef: any) => {
-      const chatSnap = await getDoc(chatRef);
-
-      if (!chatSnap.exists()) return null;
-
-      const data = chatSnap.data();
-
-      if (!data) return null;
-
-      return {
-        id: chatSnap.id,
-        ...data,
-      };
-    }),
-  );
-
-  return chats.filter(Boolean);
-}
-
-// ✅ Get single chat + messages
-export async function getChat(chatId: string): Promise<ChatSession | null> {
-  const chatRef = doc(db, "chats", chatId);
-  const chatSnap = await getDoc(chatRef);
+// ✅ Get chat metadata only (no messages)
+export async function getChat(chatId: string) {
+  const chatSnap = await getDoc(doc(db, "chats", chatId));
 
   if (!chatSnap.exists()) return null;
 
-  const messagesQuery = query(
-    collection(db, `chats/${chatId}/messages`),
-    orderBy("sentAt", "asc"),
-  );
-
-  const messagesSnap = await getDocs(messagesQuery);
-
-  const messages: Message[] = messagesSnap.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as any),
-  }));
-
   return {
     id: chatId,
-    name: chatSnap.data().name ?? "",
-    createdAt: chatSnap.data().createdAt?.toMillis?.() ?? Date.now(),
-    messages,
+    name: (chatSnap.data().name as string) ?? "",
   };
-}
-
-// ✅ Add message (generic helper)
-export async function addMessage(chatId: string, message: Omit<Message, "id">) {
-  const messagesRef = collection(db, `chats/${chatId}/messages`);
-
-  await addDoc(messagesRef, {
-    ...message,
-    sentAt: serverTimestamp(),
-  });
 }
 
 export async function changeName({

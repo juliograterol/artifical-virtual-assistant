@@ -60,12 +60,9 @@ const Options = ({ id }: { id: string }) => {
           <button
             className="hover:bg-[#606060] text-white p-2 rounded-xl select-none cursor-pointer"
             onClick={async () => {
-              const confirmed = await showAlert({
+              await showAlert({
                 form: <ChatNameForm id={id} />,
               });
-              if (confirmed) {
-                deleteChat(id);
-              }
             }}
           >
             Edit Name

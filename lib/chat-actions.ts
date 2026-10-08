@@ -1,16 +1,16 @@
 "use client";
 
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import {
   collection,
   doc,
-  addDoc,
   updateDoc,
   serverTimestamp,
-  setDoc,
-  getDoc,
-  arrayUnion,
+  writeBatch,
+  type DocumentReference,
+  type WriteBatch,
 } from "firebase/firestore";
+import type { User } from "firebase/auth";
 
 export type Message = {
   id: string;
@@ -19,145 +19,127 @@ export type Message = {
   status: "loading" | "sent" | "error";
 };
 
-const WEBHOOK_URL = "https://n8n.interactiveworkers.com/webhook/AVA";
+// Keep in sync with lib/n8n.ts and firestore.rules
+const REPLY_FAILED = "Failed to get a response. Please try again.";
+const PREVIEW_LENGTH = 140;
 
 /**
- * 🔥 Fetch + update message status
+ * Queue the user message + agent placeholder in one batch.
+ * Both share the same serverTimestamp, so clientTs breaks the tie.
  */
-async function fetchResponse(
-  uid: string,
-  chatId: string,
+function queueMessages(
+  batch: WriteBatch,
+  chatRef: DocumentReference,
   message: string,
-  messageRef: ReturnType<typeof doc>,
+) {
+  const messages = collection(chatRef, "messages");
+  const userRef = doc(messages);
+  const pendingRef = doc(messages);
+  const now = Date.now();
+
+  batch.set(userRef, {
+    role: "user",
+    content: message,
+    status: "sent",
+    sentAt: serverTimestamp(),
+    clientTs: now,
+  });
+
+  batch.set(pendingRef, {
+    role: "agent",
+    content: "",
+    status: "loading",
+    sentAt: serverTimestamp(),
+    clientTs: now + 1,
+  });
+
+  return pendingRef.id;
+}
+
+/**
+ * 🔥 Ask the server to fetch AVA's reply (the n8n call runs server-side)
+ */
+async function requestReply(
+  user: User,
+  chatId: string,
+  messageId: string,
+  message: string,
+  retry = false,
 ) {
   try {
-    const res = await fetch(WEBHOOK_URL, {
+    const res = await fetch("/api/chat/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${await user.getIdToken()}`,
       },
-      body: JSON.stringify({ message, chatId, uid }),
+      body: JSON.stringify({ chatId, messageId, message, retry }),
     });
 
-    const text = await res.text();
-
-    let data = null;
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch {
-      console.error("Invalid JSON:", text);
-    }
-
-    const payload = Array.isArray(data) ? data[0] : data;
-
-    const reply =
-      payload?.reply ||
-      payload?.message ||
-      (typeof payload === "string" ? payload : "No response received.");
-
-    await updateDoc(messageRef, {
-      content: reply,
-      status: "sent",
-    });
-
-    // ✅ optional: update chat name
-    if (payload?.name) {
-      const chatRef = doc(db, "chats", chatId);
-      const chatSnap = await getDoc(chatRef);
-
-      if (chatSnap.exists()) {
-        if (payload.name === "New Chat") {
-          await updateDoc(chatRef, {
-            name: payload.name,
-          });
-        }
-      }
-    }
+    // 409 = already claimed by another request, the reply is on its way
+    if (!res.ok && res.status !== 409) throw new Error(`HTTP ${res.status}`);
   } catch (err) {
-    console.error("Error fetching response:", err);
+    console.error("Error requesting response:", err);
 
-    await updateDoc(messageRef, {
-      content: "Failed. Tap to retry.",
+    // The server never took the job: don't leave the placeholder loading forever
+    await updateDoc(doc(db, `chats/${chatId}/messages/${messageId}`), {
+      content: REPLY_FAILED,
       status: "error",
-    });
+    }).catch(() => {});
   }
 }
 
 /**
  * 🚀 Start new chat
+ * Returns the id right away so the caller can navigate before the commit;
+ * Firestore shows the local writes instantly. `done` settles after the commit.
  */
-export async function startNewChat(uid: string, message: string) {
-  if (!message.trim()) return null;
+export function startNewChat(message: string) {
+  const user = auth.currentUser;
+  if (!user || !message.trim()) return null;
 
-  // 1. Create chat
-  const chatRef = await addDoc(collection(db, "chats"), {
+  const chatRef = doc(collection(db, "chats"));
+  const batch = writeBatch(db);
+
+  batch.set(chatRef, {
+    ownerId: user.uid,
     name: "New Chat",
-    createdAt: serverTimestamp(),
     type: "private",
+    deleted: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    lastMessage: { role: "user", preview: message.slice(0, PREVIEW_LENGTH) },
   });
 
-  const chatId = chatRef.id;
+  const pendingId = queueMessages(batch, chatRef, message);
 
-  // 2. Add chat reference to user
-  const userRef = doc(db, "users", uid);
+  const done = batch
+    .commit()
+    .then(() => requestReply(user, chatRef.id, pendingId, message));
 
-  await updateDoc(userRef, {
-    chats: arrayUnion(chatRef),
-  });
-
-  // 3. Add user message
-  await addDoc(collection(db, `chats/${chatId}/messages`), {
-    role: "user",
-    content: message,
-    status: "sent",
-    sentAt: serverTimestamp(),
-  });
-
-  // 4. Create loading agent message
-  const pendingRef = doc(collection(db, `chats/${chatId}/messages`));
-
-  await setDoc(pendingRef, {
-    role: "agent",
-    content: "...",
-    status: "loading",
-    sentAt: serverTimestamp(),
-  });
-
-  // 5. Fetch AI response
-  fetchResponse(uid, chatId, message, pendingRef);
-
-  return chatId;
+  return { chatId: chatRef.id, done };
 }
+
 /**
  * 💬 Send message
  */
-export async function sendMessageToChat(
-  uid: string,
-  chatId: string,
-  message: string,
-) {
-  if (!message.trim()) return null;
+export async function sendMessageToChat(chatId: string, message: string) {
+  const user = auth.currentUser;
+  if (!user || !message.trim()) return null;
 
-  // 1. User message
-  await addDoc(collection(db, `chats/${chatId}/messages`), {
-    role: "user",
-    content: message,
-    status: "sent",
-    sentAt: serverTimestamp(),
+  const chatRef = doc(db, "chats", chatId);
+  const batch = writeBatch(db);
+
+  const pendingId = queueMessages(batch, chatRef, message);
+
+  batch.update(chatRef, {
+    updatedAt: serverTimestamp(),
+    lastMessage: { role: "user", preview: message.slice(0, PREVIEW_LENGTH) },
   });
 
-  // 2. Create loading agent message
-  const pendingRef = doc(collection(db, `chats/${chatId}/messages`));
-
-  await setDoc(pendingRef, {
-    role: "agent",
-    content: "...",
-    status: "loading",
-    sentAt: serverTimestamp(),
-  });
-
-  // 3. Fetch response
-  fetchResponse(uid, chatId, message, pendingRef);
+  // The server reads the placeholder, so it must be committed first
+  await batch.commit();
+  await requestReply(user, chatId, pendingId, message);
 
   return true;
 }
@@ -166,19 +148,14 @@ export async function sendMessageToChat(
  * 🔁 Retry failed message
  */
 export async function retryMessage(
-  uid: string,
   chatId: string,
   messageId: string,
   originalMessage: string,
 ) {
-  const messageRef = doc(db, `chats/${chatId}/messages/${messageId}`);
+  const user = auth.currentUser;
+  if (!user) return;
 
-  await updateDoc(messageRef, {
-    content: "...",
-    status: "loading",
-  });
-
-  fetchResponse(uid, chatId, originalMessage, messageRef);
+  await requestReply(user, chatId, messageId, originalMessage, true);
 }
 
 /**

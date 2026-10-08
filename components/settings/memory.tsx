@@ -1,10 +1,14 @@
 import { useUser } from "@/lib/useUser";
+import { useAuth } from "@/lib/useAuth";
+import { useChats } from "@/lib/useChats";
 import { useEffect, useMemo, useState } from "react";
 import Button from "../button";
 import DonutChart from "./donut-chart";
 
 export default function MemorySettings() {
   const { data } = useUser();
+  const { uid } = useAuth();
+  const { data: chats } = useChats(uid);
 
   const [memory, setMemory] = useState<{
     chats: any[];
@@ -25,7 +29,7 @@ export default function MemorySettings() {
     if (!data) return;
 
     const updatedMemory = {
-      chats: data.chats || [],
+      chats,
       images: ["something"],
       videos: ["something"],
     };
@@ -40,7 +44,7 @@ export default function MemorySettings() {
     const percentage = Math.min((totalItems / MAX_MEMORY_ITEMS) * 100, 100);
 
     setMemoryPercentage(Number(percentage.toFixed(1)));
-  }, [data]);
+  }, [data, chats]);
 
   // total used items
   const totalUsed = useMemo(() => {
