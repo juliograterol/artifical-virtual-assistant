@@ -13,8 +13,8 @@ export interface BackgroundOption {
 
 export const backgrounds: BackgroundOption[] = [
   {
-    id: "default",
-    label: "Default",
+    id: "sand",
+    label: "Sand",
     type: "image",
     variants: {
       static: "/bg.png",
@@ -22,7 +22,7 @@ export const backgrounds: BackgroundOption[] = [
     },
   },
   {
-    id: "silk",
+    id: "default",
     label: "Silk",
     type: "silk",
     variants: {

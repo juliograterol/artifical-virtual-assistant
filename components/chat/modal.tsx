@@ -54,8 +54,8 @@ const Modal = ({
             <div key={date} className="flex flex-col gap-4">
               {/* Date separator */}
               <div className="flex items-center justify-center my-4">
-                <GlassElement style={{ borderRadius: 100 }}>
-                  <span className="text-xs text-white/75">{date}</span>
+                <GlassElement width={"max"} className="w-max">
+                  <span className="text-xs text-white/75 w-max">{date}</span>
                 </GlassElement>
               </div>
 

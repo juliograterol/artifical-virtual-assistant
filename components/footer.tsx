@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="w-full flex justify-center p-4 relative text-white">
       <div className="h-px bg-[#606060] absolute top-0 w-10/12 -z-10" />
       <div className="flex flex-col justify-center items-center">
-        <p className="text-sm cursor-default active:cursor-text">
+        <p className="md:text-sm text-xs cursor-default active:cursor-text">
           Developed by{" "}
           <Link
             href={"https://github.com/juliograterol"}
@@ -23,7 +23,7 @@ export default function Footer() {
             @gabocarrion
           </Link>
         </p>
-        <p className="text-sm cursor-default active:cursor-text text-center">
+        <p className="md:text-sm text-xs cursor-default active:cursor-text text-center">
           ©Copyright 2006 - 2024 Interactiveworkers.
           <br className="md:hidden" /> All Rights Reserved
         </p>

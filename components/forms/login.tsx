@@ -5,7 +5,15 @@ import { useState } from "react";
 import { login } from "@/lib/auth-actions";
 import { showAlert } from "@/lib/show-alert";
 
-export default function Login({ onLogin }: { onLogin?: () => void }) {
+export default function Login({
+  title = "Welcome back",
+  description = "Sign in your account",
+  onLogin,
+}: {
+  title?: string;
+  description?: string;
+  onLogin?: () => void;
+}) {
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -36,9 +44,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
       className="p-10 flex flex-col gap-4 items-center w-full md:max-w-lg sm:max-w-md"
     >
       <h1 className="md:text-5xl sm:text-4xl text-3xl font-medium leading-4">
-        Welcome back
+        {title}
       </h1>
-      <h2>Sign in your account</h2>
+      <h2>{description}</h2>
 
       <Input
         placeholder="Email"

@@ -6,7 +6,7 @@ import Sidebar from "@/components/sidebar/sidebar";
 import AppLoader from "@/components/app-loader";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body
-        className={`${montserrat.className} antialiased bg-[#1B1B1B] flex flex-col`}
+        className={`${montserrat.className} antialiased bg-[#1B1B1B] flex flex-col overflow-x-hidden`}
       >
         <AppLoader>
           <Background />

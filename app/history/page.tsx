@@ -6,29 +6,82 @@ import Options from "@/components/options";
 import { Chat } from "@/components/sidebar/history";
 import { ChatSession, getChat } from "@/lib/chat-storage";
 import { useEffect, useState } from "react";
-import { useUserChats } from "@/lib/useUser";
+import { useUser, useUserChats } from "@/lib/useUser";
 import { useFormatDate } from "@/lib/useFormatDate";
+import Login from "@/components/forms/login";
+import Button from "@/components/button";
+import TextType from "@/components/TextType";
+import { useRouter } from "next/navigation";
+import { showAlert } from "@/lib/show-alert";
+import Footer from "@/components/footer";
 
 export default function HistoryPage() {
+  const router = useRouter();
+  const user = useUser();
   const { data } = useUserChats();
 
   const chats = data as Chat[];
 
+  const startHistory = async () => {
+    if (!user.data) {
+      await showAlert({
+        form: <Login onLogin={() => router.push(`/c/`)} />,
+      });
+    } else {
+      router.push(`/c/`);
+    }
+  };
+
   return (
-    <div className="w-full flex items-center justify-center">
-      <section className="w-full md:p-10 px-4 flex flex-col min-h-screen items-center">
-        <header className="w-full">
-          <h2 className="text-4xl text-white text-center font-medium mb-4">
-            History
-          </h2>
-        </header>
-        <ul className="flex flex-col gap-2 w-full">
-          {chats.map((chat) => {
-            return <HistoryItem key={chat.id} chat={chat} />;
-          })}
-        </ul>
-      </section>
-    </div>
+    <>
+      <div className="w-full flex min-h-screen">
+        <section className="w-full h-full md:p-10 px-4 flex flex-col items-center">
+          <header className="w-full">
+            <h2 className="text-4xl text-white text-center font-medium mb-4">
+              History
+            </h2>
+          </header>
+          {chats.length > 0 ? (
+            <ul className="flex flex-col gap-2 w-full">
+              {chats.map((chat) => {
+                return <HistoryItem key={chat.id} chat={chat} />;
+              })}
+            </ul>
+          ) : (
+            <div className="text-white flex items-center min-h-[70svh] h-full justify-center">
+              <GlassElement className="w-full max-w-3xl">
+                <div className="grid justify-items-center space-y-2">
+                  <h3 className="font-medium text-xl underline">
+                    No history available
+                  </h3>
+                  <span>
+                    Welcome to a blank page with infinite possibilities. This
+                    isn't just another chatbot; it's a living sandbox for your
+                    ideas, workflows, and logic. Built to adapt to how you
+                    think, it's ready to help you build, automate, and create
+                    from the ground up.{" "}
+                    <TextType
+                      text={[
+                        "What are we making today?",
+                        "Let's build something great!",
+                        "The slate is all yours!",
+                      ]}
+                    />
+                  </span>
+
+                  <div className="flex max-md:flex-col gap-2 h-max w-max">
+                    <Button onClick={startHistory}>
+                      {user.data ? "Chat With Ava" : "Login now"}
+                    </Button>
+                  </div>
+                </div>
+              </GlassElement>
+            </div>
+          )}
+        </section>
+      </div>
+      <Footer />
+    </>
   );
 }
 

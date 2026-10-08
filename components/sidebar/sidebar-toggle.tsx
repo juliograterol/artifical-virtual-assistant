@@ -45,7 +45,7 @@ export default function SidebarToggle({
     <button
       onClick={onToggle}
       className={`absolute right-0 p-4 transition-all 
-        group-hover:z-10 group-hover:translate-x-full group-hover:scale-100 scale-0 
+        group-hover:z-10 group-hover:translate-x-full group-hover:scale-100 md:scale-0 
         -z-10 cursor-pointer aspect-square 
         ${isMobile && "translate-x-full"}`}
     >
