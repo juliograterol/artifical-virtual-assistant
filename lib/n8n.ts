@@ -25,6 +25,19 @@ let consecutiveFailures = 0;
 let breakerOpenUntil = 0;
 
 /**
+ * The model sometimes escapes its JSON twice, so the parsed reply still holds
+ * literal "\n" sequences and Markdown (tables, lists) renders as one line.
+ */
+function unescapeNewlines(text: string) {
+  if (text.includes("\n") || !text.includes("\\n")) return text;
+
+  return text
+    .replace(/\\r\\n|\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+    .replace(/\\"/g, '"');
+}
+
+/**
  * Accepts { reply }, { message } or a plain-text body, optionally wrapped in an array.
  * Only called for 2xx responses, so n8n error bodies never become replies.
  */
@@ -58,7 +71,7 @@ function parseReply(text: string): { reply: string; name?: string } | null {
       ? rawName.trim()
       : undefined;
 
-  return { reply, name };
+  return { reply: unescapeNewlines(reply), name };
 }
 
 function fail(code: string): AvaResult {

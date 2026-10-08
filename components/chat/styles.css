@@ -68,6 +68,50 @@
   border-top-right-radius: 12px;
 }
 
+/* Markdown content */
+.chat-markdown :not(pre) > code {
+  background: #1e1e1e;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 6px;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+
+.chat-markdown pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Syntax colors for rehype-highlight */
+.chat-markdown .hljs-comment,
+.chat-markdown .hljs-quote {
+  color: #7f8590;
+  font-style: italic;
+}
+.chat-markdown .hljs-keyword,
+.chat-markdown .hljs-selector-tag,
+.chat-markdown .hljs-built_in {
+  color: #c792ea;
+}
+.chat-markdown .hljs-string,
+.chat-markdown .hljs-regexp {
+  color: #c3e88d;
+}
+.chat-markdown .hljs-number,
+.chat-markdown .hljs-literal {
+  color: #f78c6c;
+}
+.chat-markdown .hljs-title,
+.chat-markdown .hljs-function {
+  color: #82aaff;
+}
+.chat-markdown .hljs-attr,
+.chat-markdown .hljs-attribute,
+.chat-markdown .hljs-property {
+  color: #ffcb6b;
+}
+
 @keyframes newMessage {
   from {
     opacity: 0;

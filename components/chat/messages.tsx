@@ -10,6 +10,16 @@ interface MessageProps {
   sentAt?: Timestamp;
 }
 
+// Older agent replies were stored with literal "\n" sequences instead of line breaks
+function unescapeNewlines(text: string) {
+  if (text.includes("\n") || !text.includes("\\n")) return text;
+
+  return text
+    .replace(/\\r\\n|\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+    .replace(/\\"/g, '"');
+}
+
 function normalizeMessage(message: any): string {
   if (typeof message === "string") return message;
 
@@ -34,16 +44,18 @@ const Bubble = forwardRef<
     sentAt?: Timestamp;
   }
 >(({ message, align = "left", status = "sent", isNew, sentAt }, ref) => {
-  const safeMessage = normalizeMessage(message);
-  console.log(message);
+  const normalized = normalizeMessage(message);
+  const safeMessage =
+    align === "left" ? unescapeNewlines(normalized) : normalized;
+
   return (
     <div
       ref={ref}
-      className={`message p-4 text-white rounded-2xl md:max-w-1/2 mb-4 md:mx-40 ${align} ${
+      className={`message p-4 text-white rounded-2xl min-w-0 ${align} ${
         align === "left"
-          ? "rounded-tl-none bg-[#282828] self-start sm:mr-40 mr-8"
-          : "rounded-tr-none bg-[#606060] self-end sm:ml-40 ml-8"
-      }`}
+          ? "rounded-tl-none bg-[#282828] self-start max-w-[92%] md:max-w-[85%]"
+          : "rounded-tr-none bg-[#606060] self-end max-w-[85%] md:max-w-[75%]"
+      } ${status === "error" ? "border border-[#FF4C4C]/40" : ""}`}
     >
       {status === "loading" ? (
         <svg
@@ -82,7 +94,7 @@ const Bubble = forwardRef<
       ) : (
         <MessageFormatter message={safeMessage} isNew={isNew} />
       )}
-      <span className="w-full leading-0 text-xs flex justify-end opacity-50">
+      <span className="mt-1 w-full text-[11px] flex justify-end opacity-50 select-none">
         {useFormatDate(sentAt, "time")}
       </span>
     </div>

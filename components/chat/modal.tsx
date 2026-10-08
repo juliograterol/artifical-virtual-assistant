@@ -56,7 +56,7 @@ const Modal = ({
       <div className="h-full w-full overflow-scroll modal">
         <div
           ref={containerRef}
-          className="md:p-10 py-10 px-4 flex flex-col w-full overflow-y-auto relative"
+          className="md:p-10 py-10 px-4 flex flex-col w-full max-w-4xl mx-auto overflow-y-auto relative"
         >
           {hasOlder && (
             <button
