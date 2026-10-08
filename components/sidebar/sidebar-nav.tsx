@@ -31,7 +31,7 @@ export default function SidebarNav({ isOpen }: { isOpen: boolean }) {
         </Link>
       </li>
 
-      <li>
+      {/* <li>
         <Link
           href={"/settings"}
           className="flex gap-2 items-center p-4 hover:bg-[#606060] rounded-xl"
@@ -50,7 +50,7 @@ export default function SidebarNav({ isOpen }: { isOpen: boolean }) {
           </svg>
           {isOpen && "Setting"}
         </Link>
-      </li>
+      </li> */}
     </ul>
   );
 }

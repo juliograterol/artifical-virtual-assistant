@@ -11,9 +11,9 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ava from InteractiveWorkers",
+  title: "Ava",
   description:
-    "Artificial Virtual Assistant: InteractiveWorkers' AI Agent created by @juliograterol. A resourceful, and highly capable professional AI with deep expertise spanning business development, marketing, recruitment, and content strategy. With the precision of a specialist and the versatility of InteractiveWorkers",
+    "Artificial Virtual Assistant: An AI Agent created by @juliograterol. A resourceful, and highly capable professional AI with deep expertise spanning business development, marketing, recruitment, and content strategy. With the precision of a specialist and the versatility of InteractiveWorkers",
 };
 
 export default function RootLayout({
