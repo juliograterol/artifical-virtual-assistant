@@ -14,6 +14,11 @@ export type AvaResult =
 // Keep in sync with lib/chat-actions.ts and firestore.rules
 export const REPLY_FAILED = "Failed to get a response. Please try again.";
 
+// Long tasks (lead scraping) outlive the 55s wait; n8n delivers the answer later
+// through POST /api/chat/deliver, which replaces this text.
+export const REPLY_STILL_WORKING =
+  "AVA is still working on this. The answer will appear here as soon as it's ready.";
+
 const DEADLINE_MS = 55_000; // must stay below the route's maxDuration
 const MAX_ATTEMPTS = 3;
 const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
@@ -40,8 +45,9 @@ function unescapeNewlines(text: string) {
 /**
  * Accepts { reply }, { message } or a plain-text body, optionally wrapped in an array.
  * Only called for 2xx responses, so n8n error bodies never become replies.
+ * Also used by POST /api/chat/deliver.
  */
-function parseReply(text: string): { reply: string; name?: string } | null {
+export function parseReply(text: string): { reply: string; name?: string } | null {
   let data: unknown = text;
   try {
     data = JSON.parse(text);

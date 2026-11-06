@@ -20,6 +20,9 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { changeName } from "@/lib/chat-storage";
+import { useAuth } from "@/lib/useAuth";
+import { requireUser } from "@/lib/require-user";
+import { showError } from "@/lib/show-alert";
 
 export type Message = {
   id: string;
@@ -60,6 +63,7 @@ function byTime(a: Message, b: Message) {
 export default function ChatPage() {
   const { id } = useParams();
   const chatId = id as string;
+  const { uid, loading: authLoading } = useAuth();
 
   const [tail, setTail] = useState<Message[]>([]); // live: last PAGE_SIZE messages
   const [older, setOlder] = useState<Message[]>([]); // loaded on demand
@@ -71,11 +75,29 @@ export default function ChatPage() {
   const cursorRef = useRef<QueryDocumentSnapshot | null>(null); // oldest message on screen
   const pagingRef = useRef(false);
 
+  const errorShownRef = useRef(false);
+  const renameTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const pendingNameRef = useRef<string | null>(null);
+
   const messages = useMemo(() => [...older, ...tail], [older, tail]);
 
-  // 🔥 REAL-TIME MESSAGES (last page only)
+  // One alert per page even if several listeners fail for the same reason
+  const reportListenerError = (err: unknown) => {
+    if (errorShownRef.current) return;
+    errorShownRef.current = true;
+    showError("Couldn't load this chat", err);
+  };
+
+  // 🔐 Signed out once auth has resolved: ask to log in (listeners attach after)
   useEffect(() => {
-    if (!chatId) return;
+    if (!authLoading && !uid) requireUser();
+  }, [authLoading, uid]);
+
+  // 🔥 REAL-TIME MESSAGES (last page only), only for a signed-in user
+  useEffect(() => {
+    if (!chatId || !uid) return;
+
+    errorShownRef.current = false;
 
     tailRef.current = [];
     cursorRef.current = null;
@@ -110,11 +132,11 @@ export default function ChatPage() {
 
         setTail(next);
       },
-      (err) => console.error("Messages listener failed:", err),
+      reportListenerError,
     );
 
     return () => unsub();
-  }, [chatId]);
+  }, [chatId, uid]);
 
   const loadOlder = async () => {
     const cursor = cursorRef.current;
@@ -136,15 +158,15 @@ export default function ChatPage() {
       setHasOlder(snapshot.docs.length === PAGE_SIZE);
       setOlder((prev) => [...snapshot.docs.map(toMessage).sort(byTime), ...prev]);
     } catch (err) {
-      console.error("Error loading older messages:", err);
+      showError("Couldn't load older messages", err);
     } finally {
       setLoadingOlder(false);
     }
   };
 
-  // 🔥 REAL-TIME CHAT NAME (FIXED)
+  // 🔥 REAL-TIME CHAT NAME, only for a signed-in user
   useEffect(() => {
-    if (!chatId) return;
+    if (!chatId || !uid) return;
 
     const unsub = onSnapshot(
       doc(db, "chats", chatId),
@@ -156,21 +178,52 @@ export default function ChatPage() {
           document.title = `${chatName} | Ava`;
         }
       },
-      (err) => console.error("Chat listener failed:", err),
+      reportListenerError,
     );
 
     return () => unsub();
-  }, [chatId]);
+  }, [chatId, uid]);
 
-  // ⚠️ debounce recommended, but keeping simple
-  const changeChatName = async (n: string) => {
+  const saveName = (n: string) =>
+    changeName({ chatId, name: n }).catch((err) =>
+      showError("Couldn't rename the chat", err),
+    );
+
+  // Leaving the page before the debounce fires still saves the last edit
+  useEffect(
+    () => () => {
+      clearTimeout(renameTimerRef.current);
+      if (pendingNameRef.current) saveName(pendingNameRef.current);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chatId],
+  );
+
+  // Saves 500ms after the last keystroke instead of on every keystroke
+  const changeChatName = (n: string) => {
     setName(n);
 
-    await changeName({ chatId: chatId, name: n });
+    clearTimeout(renameTimerRef.current);
+    pendingNameRef.current = n.trim() || null; // don't save an empty name
+    if (!pendingNameRef.current) return;
+
+    renameTimerRef.current = setTimeout(() => {
+      const pending = pendingNameRef.current;
+      pendingNameRef.current = null;
+      if (pending) saveName(pending);
+    }, 500);
   };
 
   const sendMessage = async (message: string) => {
-    await sendMessageToChat(chatId, message);
+    const user = await requireUser();
+    if (!user) throw new Error("Login cancelled"); // ChatInput keeps the text
+
+    try {
+      await sendMessageToChat(chatId, message);
+    } catch (err) {
+      showError("Couldn't send your message", err);
+      throw err;
+    }
   };
 
   return (

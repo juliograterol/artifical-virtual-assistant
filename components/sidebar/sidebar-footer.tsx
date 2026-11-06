@@ -1,25 +1,29 @@
-import { showAlert } from "@/lib/show-alert";
+import { useAuth } from "@/lib/useAuth";
 import { useUser } from "@/lib/useUser";
+import { requireUser } from "@/lib/require-user";
 import Link from "next/link";
-import Login from "../forms/login";
 
 export default function SidebarFooter({ isOpen }: { isOpen: boolean }) {
+  // Signed-in state comes from Firebase Auth; the profile only fills in details
+  const { user } = useAuth();
   const { data } = useUser();
-  const name = data ? [data?.name, data?.lastName].join(" ") : undefined;
-  const profilePicture = data ? data.profilePicture : undefined;
 
-  console.log(profilePicture);
+  const name = user
+    ? [data?.name, data?.lastName].filter(Boolean).join(" ") ||
+      user.email?.split("@")[0] ||
+      "User"
+    : undefined;
+  const email = data?.email || user?.email;
+  const profilePicture = data?.profilePicture;
 
   return (
     <section id="sidebar-footer">
       <div className="h-px bg-[#606060] w-10/12 m-[0_auto]" />
       <Link
         onClick={async (e) => {
-          if (!data) {
+          if (!user) {
             e.preventDefault();
-            await showAlert({
-              form: <Login />,
-            });
+            await requireUser();
           }
         }}
         href={"https://github.com/juliograterol"}
@@ -64,9 +68,7 @@ export default function SidebarFooter({ isOpen }: { isOpen: boolean }) {
           <label className="leading-4">
             {name ?? "Login"}
             <br />
-            {data?.email && (
-              <span className="text-xs opacity-50">{data.email}</span>
-            )}
+            {email && <span className="text-xs opacity-50">{email}</span>}
           </label>
         )}
       </Link>

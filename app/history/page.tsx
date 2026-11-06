@@ -4,33 +4,26 @@ import Link from "next/link";
 import GlassElement from "@/components/glass-elemet/glass-element";
 import Options from "@/components/options";
 import { Chat } from "@/components/sidebar/history";
-import { useUser } from "@/lib/useUser";
 import { useAuth } from "@/lib/useAuth";
 import { useChats } from "@/lib/useChats";
 import { useFormatDate } from "@/lib/useFormatDate";
-import Login from "@/components/forms/login";
 import Button from "@/components/button";
 import TextType from "@/components/TextType";
 import { useRouter } from "next/navigation";
-import { showAlert } from "@/lib/show-alert";
+import { requireUser } from "@/lib/require-user";
+import { Warning } from "@/components/warning";
 import Footer from "@/components/footer";
 
 export default function HistoryPage() {
   const router = useRouter();
-  const user = useUser();
-  const { uid } = useAuth();
-  const { data } = useChats(uid);
+  const { uid, loading: authLoading } = useAuth();
+  const { data, loading: chatsLoading, error } = useChats(uid);
 
   const chats = data as Chat[];
+  const loading = authLoading || chatsLoading;
 
   const startHistory = async () => {
-    if (!user.data) {
-      await showAlert({
-        form: <Login onLogin={() => router.push(`/c/`)} />,
-      });
-    } else {
-      router.push(`/c/`);
-    }
+    if (await requireUser()) router.push(`/c/`);
   };
 
   return (
@@ -42,7 +35,17 @@ export default function HistoryPage() {
               History
             </h2>
           </header>
-          {chats.length > 0 ? (
+          {error && (
+            <div className="mb-4 text-white">
+              <Warning message={error} status="danger" />
+            </div>
+          )}
+          {loading ? (
+            // wait for auth + chats before deciding between the list and the empty state
+            <p className="text-white/50 text-sm min-h-[70svh] flex items-center">
+              Loading your chats...
+            </p>
+          ) : chats.length > 0 ? (
             <ul className="flex flex-col gap-2 w-full">
               {chats.map((chat) => {
                 return <HistoryItem key={chat.id} chat={chat} />;
@@ -72,7 +75,7 @@ export default function HistoryPage() {
 
                   <div className="flex max-md:flex-col gap-2 h-max w-max">
                     <Button onClick={startHistory}>
-                      {user.data ? "Chat With Ava" : "Login now"}
+                      {uid ? "Chat With Ava" : "Login now"}
                     </Button>
                   </div>
                 </div>

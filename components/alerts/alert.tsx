@@ -4,7 +4,18 @@
 import AlertIcon from "./alert-icon";
 import Button from "../button";
 import GlassElement from "../glass-elemet/glass-element";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
+
+/**
+ * Lets a custom `form` close the alert it is rendered in.
+ * close(true) resolves showAlert() with true, close(false) with false.
+ * Returns null when the component isn't inside an alert.
+ */
+const AlertContext = createContext<{ close: (confirmed: boolean) => void } | null>(
+  null,
+);
+
+export const useAlert = () => useContext(AlertContext);
 
 export type AlertProps = {
   title?: string;
@@ -51,7 +62,16 @@ export default function Alert({
     >
       <div className="relative">
         <GlassElement className="text-white w-full md:max-w-3xl md:min-w-xl z-10">
-          {form ?? (
+          {form ? (
+            <AlertContext.Provider
+              value={{
+                close: (confirmed) =>
+                  confirmed ? handleConfirm() : handleCancel(),
+              }}
+            >
+              {form}
+            </AlertContext.Provider>
+          ) : (
             <form className="w-full grid gap-4 md:p-10 p-4">
               {icon && (
                 <div className="w-full flex justify-center">

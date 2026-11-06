@@ -7,9 +7,8 @@ import { startNewChat } from "@/lib/chat-actions";
 import ChatInput from "@/components/chat/chat-input";
 import Discover from "@/components/discovery/discover-section";
 import { useIsMobile } from "@/lib/useMobile";
-import { showAlert } from "@/lib/show-alert";
-import Login from "@/components/forms/login";
-import { useUser } from "@/lib/useUser";
+import { showError } from "@/lib/show-alert";
+import { requireUser } from "@/lib/require-user";
 import Footer from "@/components/footer";
 
 export default function Home({ discover = true }: { discover?: boolean }) {
@@ -24,25 +23,22 @@ export default function Home({ discover = true }: { discover?: boolean }) {
     }
   }, []);
 
-  // 🔥 Fetch user
-  const { data } = useUser();
+  const startChat = async (message: string) => {
+    // ✅ waits for the restored session; only asks to log in if truly signed out
+    const user = await requireUser();
+    if (!user) throw new Error("Login cancelled"); // ChatInput keeps the text
 
-  const newChat = async (m: string) => {
-    const chat = startNewChat(m);
+    const chat = startNewChat(message);
     if (!chat) return;
 
     // ✅ navigate before the commit; the chat page renders the local writes
     router.push(`/c/${chat.chatId}`);
-    await chat.done;
-  };
 
-  const startChat = async (message: string) => {
-    if (!data) {
-      await showAlert({
-        form: <Login onLogin={async () => await newChat(message)} />,
-      });
-    } else {
-      await newChat(message);
+    try {
+      await chat.done;
+    } catch (err) {
+      showError("Couldn't start the chat", err);
+      throw err;
     }
   };
   return (

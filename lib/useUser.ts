@@ -2,8 +2,10 @@
 
 import { useAuth } from "./useAuth";
 import { useEffect, useState } from "react";
-import { doc, getDoc, Timestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { doc, onSnapshot, Timestamp } from "firebase/firestore";
+import { auth, db } from "./firebase";
+import { ensureUserProfile } from "./auth-actions";
+import { getErrorMessage } from "./firebase-errors";
 
 export type UserData = {
   profilePicture?: string;
@@ -14,42 +16,63 @@ export type UserData = {
   // add more fields based on your Firestore schema
 };
 
-export const useUser = () => {
-  const { user } = useAuth();
+type ProfileState = {
+  uid: string;
+  data: UserData | null;
+  error: string | null;
+};
 
-  const [data, setData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * Profile of the signed-in user from users/{uid}.
+ * Use useAuth() to know *whether* someone is signed in; this is only their profile.
+ */
+export const useUser = () => {
+  const { uid, loading: authLoading } = useAuth();
+  const [profile, setProfile] = useState<ProfileState | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setData(null);
-      setLoading(false);
-      return;
-    }
+    if (!uid) return;
 
-    const getUser = async () => {
-      try {
-        setLoading(true);
-
-        const snap = await getDoc(doc(db, "users", user.uid));
-
+    // ✅ live: updates after sign-in, profile creation and profile edits
+    const unsub = onSnapshot(
+      doc(db, "users", uid),
+      (snap) => {
         if (snap.exists()) {
-          setData(snap.data() as UserData);
-        } else {
-          console.warn(`No users/${user.uid} document: the app treats this as logged out`);
-          setData(null);
+          setProfile({ uid, data: snap.data() as UserData, error: null });
+          return;
         }
-      } catch (err) {
-        console.error(`Failed to read users/${user.uid}:`, err);
-        setError("Failed to fetch user");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    getUser();
-  }, [user?.uid]); // 👈 important: avoid unnecessary reruns
+        setProfile({ uid, data: null, error: null });
 
-  return { data, loading, error };
+        // the snapshot fires again once the profile exists
+        if (auth.currentUser?.uid === uid) {
+          ensureUserProfile(auth.currentUser).catch((err) =>
+            setProfile({
+              uid,
+              data: null,
+              error: getErrorMessage(err, "Couldn't create your profile."),
+            }),
+          );
+        }
+      },
+      (err) => {
+        console.error(`Failed to read users/${uid}:`, err);
+        setProfile({
+          uid,
+          data: null,
+          error: getErrorMessage(err, "Couldn't load your profile."),
+        });
+      },
+    );
+
+    return () => unsub();
+  }, [uid]);
+
+  // signed out (or auth still resolving): no profile
+  if (!uid) return { data: null, loading: authLoading, error: null };
+
+  // signed in, profile for this uid not loaded yet
+  if (profile?.uid !== uid) return { data: null, loading: true, error: null };
+
+  return { data: profile.data, loading: false, error: profile.error };
 };

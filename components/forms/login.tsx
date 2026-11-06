@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { login } from "@/lib/auth-actions";
 import { showAlert } from "@/lib/show-alert";
+import { getErrorMessage } from "@/lib/firebase-errors";
+import { useAlert } from "../alerts/alert";
+import { Warning } from "../warning";
 
 export default function Login({
   title = "Welcome back",
@@ -19,23 +22,41 @@ export default function Login({
     password: "",
   });
 
+  const alert = useAlert(); // the modal this form is shown in, if any
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+
+    if (!form.email.trim() || !form.password) {
+      setError("Enter your email and password.");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
     try {
       await login(form.email, form.password);
-      await showAlert({
-        icon: "info",
-        title: "Logged in!",
-        message: "You're all set. You can speak with AVA freely from now on.",
-        onConfirm: onLogin,
-      });
     } catch (err) {
-      await showAlert({
-        icon: "warning",
-        title: "Error Loggin In",
-        message: "Incorret email or password. Try again.",
-      });
+      console.error("Login failed:", err);
+      setError(getErrorMessage(err, "Couldn't log in. Please try again."));
+      setSubmitting(false);
+      return;
     }
+
+    // ✅ Close the login modal first: it used to stay open under the success alert
+    alert?.close(true);
+
+    await showAlert({
+      icon: "info",
+      title: "Logged in!",
+      message: "You're all set. You can speak with AVA freely from now on.",
+    });
+
+    onLogin?.();
   };
 
   return (
@@ -63,11 +84,14 @@ export default function Login({
         onChange={(value) => setForm((prev) => ({ ...prev, password: value }))}
       />
 
+      {error && <Warning message={error} status="danger" />}
+
       <button
         type="submit"
-        className="bg-white text-black font-medium rounded-xl px-4 py-3 w-full cursor-pointer mt-4"
+        disabled={submitting}
+        className="bg-white text-black font-medium rounded-xl px-4 py-3 w-full cursor-pointer mt-4 disabled:opacity-50 disabled:cursor-default"
       >
-        Login
+        {submitting ? "Logging in..." : "Login"}
       </button>
 
       <p>

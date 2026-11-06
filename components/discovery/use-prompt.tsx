@@ -2,6 +2,9 @@
 
 import MessageFormatter from "../chat/message-formatter";
 import { startNewChat } from "@/lib/chat-actions";
+import { requireUser } from "@/lib/require-user";
+import { showError } from "@/lib/show-alert";
+import { useAlert } from "../alerts/alert";
 import { useState } from "react";
 
 export interface PromptProps {
@@ -18,19 +21,33 @@ export default function UsePrompt({
   onUse?: (id: string) => void;
 }) {
   const { title, description, prompt } = item;
+  const alert = useAlert(); // the modal this form is shown in
   const [finalPrompt, setFinalPrompt] = useState(prompt);
   const [loading, setLoading] = useState<boolean>(false);
 
   async function usePrompt(e: React.FormEvent) {
     e.preventDefault();
-
-    const chat = startNewChat(finalPrompt);
-    if (!chat) return;
+    if (loading) return;
 
     setLoading(true);
-    onUse?.(chat.chatId); // ✅ delegate navigation (before the commit)
 
-    await chat.done.finally(() => setLoading(false));
+    // ✅ wait for the restored session; ask to log in only if signed out
+    const user = await requireUser();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const chat = startNewChat(finalPrompt);
+    if (!chat) {
+      setLoading(false);
+      return;
+    }
+
+    onUse?.(chat.chatId); // ✅ delegate navigation (before the commit)
+    alert?.close(true); // don't leave the template open over the new chat
+
+    chat.done.catch((err) => showError("Couldn't start the chat", err));
   }
 
   return (

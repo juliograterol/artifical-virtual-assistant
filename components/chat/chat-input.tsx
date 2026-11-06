@@ -24,13 +24,16 @@ const ChatInput = ({
   const [isSending, setIsSending] = useState<boolean>(false);
 
   const handleSend = async () => {
-    if (!message.trim()) return;
+    const text = message;
+    if (!text.trim() || isSending) return;
 
     setMessage("");
     try {
       setIsSending(true);
-      await onSend(message);
-    } catch (e) {
+      await onSend(text);
+    } catch {
+      // the caller already told the user what went wrong; give the text back
+      setMessage((current) => current || text);
     } finally {
       setIsSending(false);
     }

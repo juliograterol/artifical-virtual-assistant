@@ -11,6 +11,7 @@ import {
   type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { getErrorMessage } from "./firebase-errors";
 import { Chat } from "@/components/sidebar/history";
 
 /**
@@ -18,9 +19,11 @@ import { Chat } from "@/components/sidebar/history";
  * One query instead of user doc + one read per chat. Identical queries
  * (sidebar + history page) share a single listener inside the SDK.
  */
+type ChatsState = { uid: string; data: Chat[]; error: string | null };
+
 export const useChats = (uid?: string, max?: number) => {
-  const [data, setData] = useState<Chat[]>([]);
-  const [loading, setLoading] = useState(true);
+  // keyed by uid so a different account never sees the previous list
+  const [chats, setChats] = useState<ChatsState | null>(null);
 
   useEffect(() => {
     if (!uid) return;
@@ -35,20 +38,25 @@ export const useChats = (uid?: string, max?: number) => {
     const unsub = onSnapshot(
       query(collection(db, "chats"), ...constraints),
       (snapshot) => {
-        setData(
-          snapshot.docs.map(
+        setChats({
+          uid,
+          error: null,
+          data: snapshot.docs.map(
             (d) =>
               ({
                 id: d.id,
                 ...d.data({ serverTimestamps: "estimate" }),
               }) as Chat,
           ),
-        );
-        setLoading(false);
+        });
       },
       (err) => {
-        console.log("Error fetching chats:", err);
-        setLoading(false);
+        console.error("Error fetching chats:", err);
+        setChats({
+          uid,
+          data: [],
+          error: getErrorMessage(err, "Couldn't load your chats."),
+        });
       },
     );
 
@@ -56,5 +64,9 @@ export const useChats = (uid?: string, max?: number) => {
   }, [uid, max]);
 
   // signed out: nothing to show (also clears the list on logout)
-  return uid ? { data, loading } : { data: [] as Chat[], loading: false };
+  if (!uid) return { data: [] as Chat[], loading: false, error: null };
+
+  if (chats?.uid !== uid) return { data: [] as Chat[], loading: true, error: null };
+
+  return { data: chats.data, loading: false, error: chats.error };
 };

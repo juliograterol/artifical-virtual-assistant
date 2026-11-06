@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { deleteChat } from "@/lib/chat-actions";
-import { showAlert } from "@/lib/show-alert";
+import { showAlert, showError } from "@/lib/show-alert";
 import ChatNameForm from "./forms/chat-name-form";
 
 const Options = ({ id }: { id: string }) => {
@@ -36,7 +36,7 @@ const Options = ({ id }: { id: string }) => {
           </svg>
         </button>
         <div
-          className={`absolute top-full left-0 z-10 bg-[#404040] w-max rounded-xl ${isOpen ? "" : "opacity-0"} grid`}
+          className={`absolute top-full left-0 z-10 bg-[#404040] w-max rounded-xl ${isOpen ? "" : "opacity-0 pointer-events-none"} grid`}
           // onMouseOut={() => {
           //   setIsOpen(false);
           // }}
@@ -44,6 +44,7 @@ const Options = ({ id }: { id: string }) => {
           <button
             className="hover:bg-[#606060] text-red-500 p-2 rounded-xl select-none cursor-pointer"
             onClick={async () => {
+              setIsOpen(false);
               const confirmed = await showAlert({
                 title: "Delete chat?",
                 icon: "warning",
@@ -51,7 +52,9 @@ const Options = ({ id }: { id: string }) => {
                   "AVA doesn't have backups for chats. This action will delete this chat forever.",
               });
               if (confirmed) {
-                deleteChat(id);
+                deleteChat(id).catch((err) =>
+                  showError("Couldn't delete the chat", err),
+                );
               }
             }}
           >
@@ -60,6 +63,7 @@ const Options = ({ id }: { id: string }) => {
           <button
             className="hover:bg-[#606060] text-white p-2 rounded-xl select-none cursor-pointer"
             onClick={async () => {
+              setIsOpen(false);
               await showAlert({
                 form: <ChatNameForm id={id} />,
               });

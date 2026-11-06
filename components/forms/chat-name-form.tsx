@@ -5,6 +5,8 @@ import Button from "../button";
 import { useEffect, useState } from "react";
 import { changeName, getChat } from "@/lib/chat-storage";
 import { Warning } from "../warning";
+import { useAlert } from "../alerts/alert";
+import { getErrorMessage } from "@/lib/firebase-errors";
 
 export default function ChatNameForm({ id }: { id: string }) {
   const [chat, setChat] = useState<{ chatId: string; name: string }>({
@@ -12,6 +14,9 @@ export default function ChatNameForm({ id }: { id: string }) {
     name: "chat-" + id,
   });
   const [previousName, setPreviousName] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const alert = useAlert(); // the modal this form is shown in
 
   useEffect(() => {
     const fetchChatName = async () => {
@@ -26,7 +31,7 @@ export default function ChatNameForm({ id }: { id: string }) {
           setPreviousName(chatName);
         }
       } catch (e) {
-        console.log("Couldn't fetch chat name");
+        setError(getErrorMessage(e, "Couldn't load the chat name."));
       }
     };
     fetchChatName();
@@ -34,14 +39,17 @@ export default function ChatNameForm({ id }: { id: string }) {
 
   const updateChatName = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (chat.name === previousName) {
-      //   setChat((prev) => ({
-      //     ...prev,
-      //     name: previousName,
-      //   }));
-      return;
+    if (chat.name === previousName || saving) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      await changeName(chat);
+      alert?.close(true); // ✅ close the modal once saved
+    } catch (err) {
+      setError(getErrorMessage(err, "Couldn't save the name. Try again."));
+      setSaving(false);
     }
-    await changeName(chat);
   };
 
   return (
@@ -64,6 +72,7 @@ export default function ChatNameForm({ id }: { id: string }) {
         message="Give this conversation a specific name so you can find it easily later. A clear title today saves a lot of searching tomorrow."
         status="danger"
       />
+      {error && <Warning message={error} status="danger" />}
       <div className="flex max-md:flex-col w-full gap-4">
         <Button
           label="Reset"
@@ -81,7 +90,7 @@ export default function ChatNameForm({ id }: { id: string }) {
         <Button
           label="Save"
           type="submit"
-          disabled={chat.name === previousName || chat.name === ""}
+          disabled={chat.name === previousName || !chat.name.trim() || saving}
         />
       </div>
     </form>
